@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
 import SingleSelector from "@/components/form/SingleSelector";
 import ExpandableQuestion from "@/components/form/ExpandableQuestion";
-import { CalendarIcon, ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
+import DatePicker from "@/components/form/DatePicker";
+import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
 
 const COUNTRIES = [
   { value: "us", label: "United States" },
@@ -168,67 +167,10 @@ export default function AboutYouPage() {
         <div className="flex flex-col gap-6 w-full">
           <h2 style={sectionHeadingStyle}>What is your date of birth?</h2>
           <DatePicker
-            selected={form.dateOfBirth}
-            onChange={(date: Date | null) => setForm((prev) => ({ ...prev, dateOfBirth: date }))}
-            dateFormat="MM/dd/yyyy"
-            showMonthDropdown
-            showYearDropdown
-            dropdownMode="select"
-            maxDate={new Date()}
-            placeholderText=""
-            customInput={
-              <div
-                className="relative flex items-center h-[48px] px-3 rounded-[2px] border border-[#dcdcde] bg-white cursor-pointer hover:border-[#a6a6ab] w-full"
-                style={{ minWidth: 0 }}
-              >
-                <span
-                  className="absolute left-3 pointer-events-none select-none transition-all duration-150"
-                  style={
-                    form.dateOfBirth
-                      ? {
-                          fontFamily: "var(--font-figtree), Figtree, sans-serif",
-                          fontWeight: 500,
-                          fontSize: "11px",
-                          lineHeight: "16px",
-                          color: "#a6a6ab",
-                          top: "5px",
-                        }
-                      : {
-                          fontFamily: "var(--font-figtree), Figtree, sans-serif",
-                          fontWeight: 500,
-                          fontSize: "14px",
-                          lineHeight: "20px",
-                          color: "#727279",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                        }
-                  }
-                >
-                  Date of Birth*
-                </span>
-                {form.dateOfBirth && (
-                  <span
-                    className="absolute left-3"
-                    style={{
-                      fontFamily: "var(--font-figtree), Figtree, sans-serif",
-                      fontWeight: 400,
-                      fontSize: "14px",
-                      color: "#2f2f39",
-                      top: "20px",
-                    }}
-                  >
-                    {form.dateOfBirth.toLocaleDateString("en-US", {
-                      month: "2-digit",
-                      day: "2-digit",
-                      year: "numeric",
-                    })}
-                  </span>
-                )}
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <CalendarIcon />
-                </div>
-              </div>
-            }
+            label="Date of Birth"
+            required
+            value={form.dateOfBirth}
+            onChange={(date) => setForm((prev) => ({ ...prev, dateOfBirth: date }))}
           />
         </div>
 

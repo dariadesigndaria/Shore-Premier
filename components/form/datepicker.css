@@ -1,0 +1,106 @@
+/* YachtWay design system datepicker styles */
+
+.yw-calendar.react-datepicker {
+  border: 0 !important;
+  border-radius: 8px !important;
+  font-family: var(--font-figtree), Figtree, sans-serif;
+  box-shadow: 0px 4px 32px 0px rgba(140, 140, 140, 0.24);
+  margin-top: 4px;
+}
+
+.yw-calendar .react-datepicker__header {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: #fff !important;
+}
+
+.yw-calendar .react-datepicker__current-month,
+.yw-calendar .react-datepicker__navigation-icon {
+  font-family: var(--font-figtree), Figtree, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2f2f39;
+}
+
+.yw-calendar .react-datepicker__navigation {
+  top: 8px;
+}
+
+.yw-calendar .react-datepicker__week {
+  display: flex;
+}
+
+.yw-calendar .react-datepicker__day-names {
+  display: flex;
+  min-height: 30px;
+  justify-content: space-between;
+  border-top: 1px solid rgba(112, 128, 144, 0.2);
+  margin: 0 0 1px !important;
+  background: rgba(112, 128, 144, 0.04) !important;
+}
+
+.yw-calendar .react-datepicker__day-name {
+  display: inline-flex !important;
+  width: 38px !important;
+  align-items: center;
+  justify-content: center;
+  color: #708090 !important;
+  font-family: var(--font-figtree), Figtree, sans-serif !important;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 14px;
+}
+
+.yw-calendar .react-datepicker__month {
+  margin: 0 !important;
+}
+
+.yw-calendar .react-datepicker__day {
+  display: grid !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 0 !important;
+  margin: 1px 0 !important;
+  place-items: center;
+  font-family: var(--font-figtree), Figtree, sans-serif;
+  font-size: 13px;
+  color: #2f2f39;
+}
+
+.yw-calendar .react-datepicker__day:hover:not(.react-datepicker__day--disabled) {
+  border-radius: 100% !important;
+  background-color: #f8f5fb !important;
+}
+
+.yw-calendar .react-datepicker__day--selected {
+  border-radius: 200px !important;
+  background: linear-gradient(254deg, #8729fa -142.88%, #2b0075 175.67%) !important;
+  color: #fff !important;
+}
+
+.yw-calendar .react-datepicker__day--keyboard-selected {
+  background-color: transparent !important;
+  color: #2f2f39 !important;
+}
+
+.yw-calendar .react-datepicker__day--today {
+  font-weight: 700;
+  background-color: #fff !important;
+}
+
+.yw-calendar .react-datepicker__day--disabled {
+  color: #e1e5ea !important;
+}
+
+.yw-calendar .react-datepicker__month-select,
+.yw-calendar .react-datepicker__year-select {
+  font-family: var(--font-figtree), Figtree, sans-serif;
+  font-size: 13px;
+  color: #2f2f39;
+  border: 1px solid #dcdcde;
+  border-radius: 2px;
+  padding: 2px 4px;
+  background: white;
+  cursor: pointer;
+}

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   FileIcon,
   MapPinIcon,
@@ -9,6 +8,8 @@ import {
   MotorYachtIcon,
   SummaryIcon,
 } from "@/components/icons";
+
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const steps = [
   { id: "about-you", label: "About You", icon: <FileIcon /> },
@@ -28,38 +29,31 @@ interface SidebarProps {
 export default function Sidebar({ currentStep }: SidebarProps) {
   return (
     <aside
-      className="relative shrink-0 w-[324px] h-full min-h-screen overflow-hidden"
+      className="relative shrink-0 w-[324px] min-h-screen overflow-hidden self-stretch"
     >
       {/* Background photo */}
       <div className="absolute inset-0">
-        <Image
-          src="/images/sidebar-bg.jpg"
+        <img
+          src={`${BASE}/images/sidebar-bg.jpg`}
           alt=""
-          fill
-          className="object-cover"
-          sizes="324px"
-          priority
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <Image
-          src="/images/sidebar-overlay1.png"
+        <img
+          src={`${BASE}/images/sidebar-overlay1.png`}
           alt=""
-          fill
-          className="object-cover"
-          sizes="324px"
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <Image
-          src="/images/sidebar-overlay2.png"
+        <img
+          src={`${BASE}/images/sidebar-overlay2.png`}
           alt=""
-          fill
-          className="object-cover"
-          sizes="324px"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         {/* Dark overlay for legibility */}
         <div className="absolute inset-0 bg-[rgba(0,0,0,0.35)]" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col h-full px-10 pt-9 pb-8">
+      <div className="relative z-10 flex flex-col min-h-screen px-10 pt-9 pb-8">
 
         {/* Brand title */}
         <div className="flex items-center gap-[10px] mb-6 shrink-0">

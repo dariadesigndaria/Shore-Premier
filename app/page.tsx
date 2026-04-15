@@ -1,17 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import ShorePremierLogo from "@/components/ShorePremierLogo";
 import YachtwayLogo from "@/components/YachtwayLogo";
+
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export default function TypeOfApplicationPage() {
   return (
     <div
       className="min-h-screen flex flex-col items-center"
-      style={{
-        background: "linear-gradient(183.979deg, #f9f9f9 27.937%, #f9fafb 12.669%)",
-      }}
+      style={{ background: "#ffffff" }}
     >
       {/* White card container */}
       <div className="bg-white flex flex-col gap-12 items-center w-full max-w-[1440px] min-h-[800px]">
@@ -44,19 +43,15 @@ export default function TypeOfApplicationPage() {
                 className="flex-1 h-[304px] rounded-[4px] overflow-hidden relative border-2 border-[rgba(34,34,45,0.04)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(34,34,45,0.12)] transition-colors block"
               >
                 <div className="absolute top-0 left-0 right-0 h-[224px]">
-                  <Image
-                    src="/images/card-individually-photo.jpg"
+                  <img
+                    src={`${BASE}/images/card-individually-photo.jpg`}
                     alt=""
-                    fill
-                    className="object-cover"
-                    sizes="272px"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
-                  <Image
-                    src="/images/card-individually-overlay.png"
+                  <img
+                    src={`${BASE}/images/card-individually-overlay.png`}
                     alt=""
-                    fill
-                    className="object-cover"
-                    sizes="272px"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
                 <p
@@ -80,19 +75,15 @@ export default function TypeOfApplicationPage() {
                 className="flex-1 h-[304px] rounded-[4px] overflow-hidden relative border-2 border-[rgba(34,34,45,0.04)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(34,34,45,0.12)] transition-colors block"
               >
                 <div className="absolute top-0 left-0 right-0 h-[224px]">
-                  <Image
-                    src="/images/card-coborrower-photo.jpg"
+                  <img
+                    src={`${BASE}/images/card-coborrower-photo.jpg`}
                     alt=""
-                    fill
-                    className="object-cover"
-                    sizes="272px"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
-                  <Image
-                    src="/images/card-coborrower-overlay.png"
+                  <img
+                    src={`${BASE}/images/card-coborrower-overlay.png`}
                     alt=""
-                    fill
-                    className="object-cover"
-                    sizes="272px"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
                 <p
@@ -115,7 +106,7 @@ export default function TypeOfApplicationPage() {
       </div>
 
       {/* Footer */}
-      <div className="w-full border-t-4 border-[#f6f6f7] px-[100px] flex flex-col items-center justify-center gap-2" style={{ height: "115px" }}>
+      <div className="w-full border-t-4 border-[#f6f6f7] flex flex-col items-center justify-center gap-2" style={{ height: "115px", flexShrink: 0 }}>
         <p
           style={{
             fontFamily: "var(--font-figtree), Figtree, sans-serif",
