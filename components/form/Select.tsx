@@ -26,28 +26,41 @@ export default function Select({
   className = "",
 }: SelectProps) {
   const id = useId();
+  const filled = Boolean(value);
 
   return (
     <div className="flex flex-col w-full">
       <div
-        className={`relative flex items-center h-[40px] px-3 rounded-[2px] border bg-white transition-colors cursor-pointer
+        className={`relative flex items-center h-[48px] px-3 rounded-[2px] border bg-white transition-colors cursor-pointer
           ${error ? "border-red-500" : "border-[#dcdcde]"}
           hover:border-[#a6a6ab]
           has-[select:focus]:border-[#4b0ea3] has-[select:focus]:shadow-[0_0_0_2px_rgba(75,14,163,0.08)]
           ${className}`}
       >
-        {/* Placeholder label — hidden when value selected */}
+        {/* Floating label */}
         <label
           htmlFor={id}
-          className="absolute left-3 flex items-center pointer-events-none select-none transition-opacity"
-          style={{
-            fontFamily: "var(--font-figtree), Figtree, sans-serif",
-            fontWeight: 500,
-            fontSize: "14px",
-            lineHeight: "20px",
-            color: "#727279",
-            opacity: value ? 0 : 1,
-          }}
+          className="absolute left-3 pointer-events-none select-none transition-all duration-150"
+          style={
+            filled
+              ? {
+                  fontFamily: "var(--font-figtree), Figtree, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "11px",
+                  lineHeight: "16px",
+                  color: "#a6a6ab",
+                  top: "5px",
+                }
+              : {
+                  fontFamily: "var(--font-figtree), Figtree, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                  lineHeight: "20px",
+                  color: "#727279",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }
+          }
         >
           {label}
           {required && <span style={{ fontWeight: 400 }}>*</span>}
@@ -63,7 +76,8 @@ export default function Select({
             fontWeight: 400,
             fontSize: "14px",
             lineHeight: "20px",
-            color: value ? "#2f2f39" : "transparent",
+            color: filled ? "#2f2f39" : "transparent",
+            paddingTop: filled ? "20px" : "0px",
           }}
         >
           <option value="" disabled />

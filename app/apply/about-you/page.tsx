@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
@@ -62,6 +62,50 @@ interface FormData {
   ssn: string;
 }
 
+interface StoredFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string | null;
+  country: string;
+  idType: string;
+  idState: string;
+  idNumber: string;
+  hasSSN: string;
+  ssn: string;
+}
+
+const STORAGE_KEY = "easyfund_about_you";
+
+function loadFromStorage(): FormData {
+  const empty: FormData = {
+    firstName: "", lastName: "", email: "", phone: "",
+    dateOfBirth: null, country: "", idType: "", idState: "",
+    idNumber: "", hasSSN: "", ssn: "",
+  };
+  if (typeof window === "undefined") return empty;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return empty;
+    const stored: StoredFormData = JSON.parse(raw);
+    return {
+      ...stored,
+      dateOfBirth: stored.dateOfBirth ? new Date(stored.dateOfBirth) : null,
+    };
+  } catch {
+    return empty;
+  }
+}
+
+function saveToStorage(form: FormData) {
+  const stored: StoredFormData = {
+    ...form,
+    dateOfBirth: form.dateOfBirth ? form.dateOfBirth.toISOString() : null,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+}
+
 function AboutYouForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -69,19 +113,12 @@ function AboutYouForm() {
   const type = searchParams.get("type") ?? "";
   const done = searchParams.get("done") ?? "";
 
-  const [form, setForm] = useState<FormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    dateOfBirth: null,
-    country: "",
-    idType: "",
-    idState: "",
-    idNumber: "",
-    hasSSN: "",
-    ssn: "",
-  });
+  const [form, setForm] = useState<FormData>(loadFromStorage);
+
+  // Persist on every change
+  useEffect(() => {
+    saveToStorage(form);
+  }, [form]);
 
   function update(field: keyof FormData) {
     return (value: string) => setForm((prev) => ({ ...prev, [field]: value }));
@@ -108,11 +145,8 @@ function AboutYouForm() {
   function handleSaveNext() {
     if (!requiredFilled) return;
     const existingDone = done ? done.split(",").filter(Boolean) : [];
-    if (!existingDone.includes("about-you")) {
-      existingDone.push("about-you");
-    }
-    const newDone = existingDone.join(",");
-    router.push(`/apply/address?type=${type}&done=${newDone}`);
+    if (!existingDone.includes("about-you")) existingDone.push("about-you");
+    router.push(`/apply/address?type=${type}&done=${existingDone.join(",")}`);
   }
 
   const sectionHeadingStyle: React.CSSProperties = {
@@ -216,7 +250,7 @@ function AboutYouForm() {
         )}
 
         {/* ── Navigation: Save & Next ── */}
-        <div className="flex gap-0 items-center w-full">
+        <div className="flex items-center w-full">
           <button
             type="button"
             onClick={handleSaveNext}
@@ -228,16 +262,14 @@ function AboutYouForm() {
               cursor: requiredFilled ? "pointer" : "not-allowed",
             }}
           >
-            <span
-              style={{
-                fontFamily: "var(--font-figtree), Figtree, sans-serif",
-                fontWeight: 500,
-                fontSize: "16px",
-                lineHeight: "24px",
-                color: "#ffffff",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <span style={{
+              fontFamily: "var(--font-figtree), Figtree, sans-serif",
+              fontWeight: 500,
+              fontSize: "16px",
+              lineHeight: "24px",
+              color: "#ffffff",
+              whiteSpace: "nowrap",
+            }}>
               Save &amp; Next
             </span>
             <ArrowRightIcon />

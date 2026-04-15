@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Input from "@/components/form/Input";
 import SingleSelector from "@/components/form/SingleSelector";
@@ -17,6 +17,26 @@ const OWN_TYPES = [
   { value: "outright", label: "Own Outright" },
 ];
 
+interface HousingState {
+  housingType: string;
+  ownType: string;
+  monthlyPayment: string;
+  sameForCoBorrower: boolean;
+}
+
+const STORAGE_KEY = "easyfund_housing";
+
+function loadFromStorage(): HousingState {
+  const empty: HousingState = { housingType: "", ownType: "", monthlyPayment: "", sameForCoBorrower: false };
+  if (typeof window === "undefined") return empty;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as HousingState) : empty;
+  } catch {
+    return empty;
+  }
+}
+
 function HousingForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -25,21 +45,26 @@ function HousingForm() {
   const done = searchParams.get("done") ?? "";
   const applicationType = type === "co-borrower" ? "co-borrower" : "individual";
 
-  const [housingType, setHousingType] = useState("");
-  const [ownType, setOwnType] = useState("");
-  const [monthlyPayment, setMonthlyPayment] = useState("");
-  const [sameForCoBorrower, setSameForCoBorrower] = useState(false);
+  const [state, setState] = useState<HousingState>(loadFromStorage);
 
-  const canProceed = housingType !== "" && monthlyPayment.trim() !== "";
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state]);
+
+  function update<K extends keyof HousingState>(field: K, value: HousingState[K]) {
+    setState((prev) => ({ ...prev, [field]: value }));
+  }
+
+  const canProceed =
+    state.housingType !== "" &&
+    state.monthlyPayment.trim() !== "" &&
+    (state.housingType !== "own" || state.ownType !== "");
 
   function handleSaveNext() {
     if (!canProceed) return;
     const existingDone = done ? done.split(",").filter(Boolean) : [];
-    if (!existingDone.includes("housing")) {
-      existingDone.push("housing");
-    }
-    const newDone = existingDone.join(",");
-    router.push(`/apply/employment?type=${type}&done=${newDone}`);
+    if (!existingDone.includes("housing")) existingDone.push("housing");
+    router.push(`/apply/employment?type=${type}&done=${existingDone.join(",")}`);
   }
 
   const mainTitleStyle: React.CSSProperties = {
@@ -86,45 +111,45 @@ function HousingForm() {
           <h1 style={mainTitleStyle}>What is your housing situation?</h1>
           <SingleSelector
             options={HOUSING_TYPES}
-            value={housingType}
-            onChange={setHousingType}
+            value={state.housingType}
+            onChange={(v) => update("housingType", v)}
           />
         </div>
 
         {/* ── Own type sub-selector (conditional) ── */}
-        {housingType === "own" && (
+        {state.housingType === "own" && (
           <div className="flex flex-col gap-5 w-full">
             <SingleSelector
               options={OWN_TYPES}
-              value={ownType}
-              onChange={setOwnType}
+              value={state.ownType}
+              onChange={(v) => update("ownType", v)}
             />
           </div>
         )}
 
         {/* ── Monthly payment (shown after housing type selected) ── */}
-        {housingType !== "" && (
+        {state.housingType !== "" && (
           <div className="flex flex-col gap-5 w-full">
             <h2 style={sectionHeadingStyle}>What is your monthly housing payment?</h2>
             <Input
               label="Monthly Payment"
               required
               type="number"
-              value={monthlyPayment}
-              onChange={(e) => setMonthlyPayment(e.target.value)}
+              value={state.monthlyPayment}
+              onChange={(e) => update("monthlyPayment", e.target.value)}
             />
             {applicationType === "co-borrower" && (
               <Checkbox
                 label="Apply same for Co-Borrower"
-                checked={sameForCoBorrower}
-                onChange={setSameForCoBorrower}
+                checked={state.sameForCoBorrower}
+                onChange={(v) => update("sameForCoBorrower", v)}
               />
             )}
           </div>
         )}
 
         {/* ── Navigation: Save & Next ── */}
-        <div className="flex gap-0 items-center w-full">
+        <div className="flex items-center w-full">
           <button
             type="button"
             onClick={handleSaveNext}

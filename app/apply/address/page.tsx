@@ -1,12 +1,13 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
 import Checkbox from "@/components/form/Checkbox";
 import ExpandableQuestion from "@/components/form/ExpandableQuestion";
-import { ArrowRightIcon, QuestionMarkIcon, CalendarIcon } from "@/components/icons";
+import MonthYearPicker from "@/components/form/MonthYearPicker";
+import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
 
 const COUNTRIES = [
   { value: "us", label: "United States" },
@@ -42,37 +43,44 @@ interface AddressEntry {
   state: string;
   zip: string;
   apartment: string;
-  moveInDate: string;
+  moveInDate: Date | null;
+}
+
+interface StoredAddressEntry {
+  country: string;
+  city: string;
+  address: string;
+  state: string;
+  zip: string;
+  apartment: string;
+  moveInDate: string | null;
 }
 
 function emptyAddress(): AddressEntry {
-  return { country: "", city: "", address: "", state: "", zip: "", apartment: "", moveInDate: "" };
+  return { country: "", city: "", address: "", state: "", zip: "", apartment: "", moveInDate: null };
 }
 
-function monthsAgo(mmyy: string): number {
-  const parts = mmyy.split("/");
-  if (parts.length !== 2) return 0;
-  const mm = parseInt(parts[0], 10);
-  const yy = parseInt(parts[1], 10);
-  if (isNaN(mm) || isNaN(yy)) return 0;
-  const year = yy + 2000;
-  const month = mm - 1;
-  const date = new Date(year, month, 1);
+function serializeEntry(entry: AddressEntry): StoredAddressEntry {
+  return { ...entry, moveInDate: entry.moveInDate ? entry.moveInDate.toISOString() : null };
+}
+
+function deserializeEntry(raw: StoredAddressEntry): AddressEntry {
+  return { ...raw, moveInDate: raw.moveInDate ? new Date(raw.moveInDate) : null };
+}
+
+function monthsAgo(date: Date): number {
   const now = new Date();
   return (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
 }
 
-function isValidMMYY(mmyy: string): boolean {
-  const parts = mmyy.split("/");
-  if (parts.length !== 2) return false;
-  const mm = parseInt(parts[0], 10);
-  const yy = parseInt(parts[1], 10);
-  if (isNaN(mm) || isNaN(yy)) return false;
-  if (mm < 1 || mm > 12) return false;
-  const year = yy + 2000;
-  const now = new Date();
-  const date = new Date(year, mm - 1, 1);
-  return date <= now;
+function isEntryRequired(entry: AddressEntry): boolean {
+  return (
+    entry.country !== "" &&
+    entry.city.trim() !== "" &&
+    entry.address.trim() !== "" &&
+    entry.state !== "" &&
+    entry.zip.trim() !== ""
+  );
 }
 
 const HISTORY_HEADINGS = [
@@ -82,6 +90,41 @@ const HISTORY_HEADINGS = [
   "One more — this should seal the 2 years",
 ];
 
+const STORAGE_KEY = "easyfund_address";
+
+interface StoredState {
+  primary: StoredAddressEntry;
+  history: StoredAddressEntry[];
+  sameForCoBorrower: boolean;
+}
+
+function loadFromStorage(): { primary: AddressEntry; history: AddressEntry[]; sameForCoBorrower: boolean } {
+  if (typeof window === "undefined") {
+    return { primary: emptyAddress(), history: [], sameForCoBorrower: false };
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { primary: emptyAddress(), history: [], sameForCoBorrower: false };
+    const stored: StoredState = JSON.parse(raw);
+    return {
+      primary: deserializeEntry(stored.primary),
+      history: (stored.history ?? []).map(deserializeEntry),
+      sameForCoBorrower: stored.sameForCoBorrower ?? false,
+    };
+  } catch {
+    return { primary: emptyAddress(), history: [], sameForCoBorrower: false };
+  }
+}
+
+function saveToStorage(primary: AddressEntry, history: AddressEntry[], sameForCoBorrower: boolean) {
+  const stored: StoredState = {
+    primary: serializeEntry(primary),
+    history: history.map(serializeEntry),
+    sameForCoBorrower,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+}
+
 function AddressForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -90,11 +133,22 @@ function AddressForm() {
   const done = searchParams.get("done") ?? "";
   const applicationType = type === "co-borrower" ? "co-borrower" : "individual";
 
-  const [primary, setPrimary] = useState<AddressEntry>(emptyAddress());
-  const [sameForCoBorrower, setSameForCoBorrower] = useState(false);
-  const [history, setHistory] = useState<AddressEntry[]>([]);
+  // Load from localStorage on mount
+  const initial = loadFromStorage();
+  const [primary, setPrimary] = useState<AddressEntry>(initial.primary);
+  const [history, setHistory] = useState<AddressEntry[]>(initial.history);
+  const [sameForCoBorrower, setSameForCoBorrower] = useState(initial.sameForCoBorrower);
 
-  function handleHistoryUpdate(index: number, field: keyof AddressEntry, value: string) {
+  // Persist to localStorage on every change
+  useEffect(() => {
+    saveToStorage(primary, history, sameForCoBorrower);
+  }, [primary, history, sameForCoBorrower]);
+
+  function updatePrimary(field: keyof AddressEntry, value: string | Date | null) {
+    setPrimary((p) => ({ ...p, [field]: value }));
+  }
+
+  function updateHistory(index: number, field: keyof AddressEntry, value: string | Date | null) {
     setHistory((prev) => {
       const next = [...prev];
       while (next.length <= index) next.push(emptyAddress());
@@ -103,64 +157,35 @@ function AddressForm() {
     });
   }
 
-  // Calculate how many history blocks to show
+  // How many history blocks to show:
+  // - 0 if primary moveInDate covers >= 24 months
+  // - Otherwise show blocks progressively until coverage reaches 24 months
   function getHistoryBlocksNeeded(): number {
-    if (!isValidMMYY(primary.moveInDate)) return 0;
-    const primaryMonths = monthsAgo(primary.moveInDate);
-    if (primaryMonths >= 24) return 0;
-
-    let totalCovered = primaryMonths;
-    let blocks = 0;
+    if (!primary.moveInDate) return 0;
+    if (monthsAgo(primary.moveInDate) >= 24) return 0;
 
     for (let i = 0; i < 4; i++) {
-      if (totalCovered >= 24) break;
-      blocks = i + 1;
-      if (i < history.length && isValidMMYY(history[i].moveInDate)) {
-        totalCovered = monthsAgo(history[i].moveInDate);
-        if (totalCovered >= 24) break;
-      } else {
-        break;
-      }
+      const h = history[i];
+      if (!h?.moveInDate) return i + 1; // show this block, it's not filled yet
+      if (monthsAgo(h.moveInDate) >= 24) return i + 1; // this block covers 2 years
+      // still not enough — check if we need next block
     }
-
-    return Math.min(blocks, 4);
+    return 4; // maximum 4 blocks
   }
 
   const historyBlocksNeeded = getHistoryBlocksNeeded();
 
-  // Build display history (pad with empty entries as needed)
-  const displayedHistory: AddressEntry[] = Array.from(
-    { length: historyBlocksNeeded },
-    (_, i) => history[i] ?? emptyAddress()
+  const primaryFilled = isEntryRequired(primary) && primary.moveInDate !== null;
+  const historyFilled = Array.from({ length: historyBlocksNeeded }, (_, i) => history[i]).every(
+    (h) => h && isEntryRequired(h) && h.moveInDate !== null
   );
-
-  const primaryRequired =
-    primary.country !== "" &&
-    primary.city.trim() !== "" &&
-    primary.address.trim() !== "" &&
-    primary.state !== "" &&
-    primary.zip.trim() !== "" &&
-    isValidMMYY(primary.moveInDate);
-
-  const historyValid = displayedHistory.every((h) =>
-    h.country !== "" &&
-    h.city.trim() !== "" &&
-    h.address.trim() !== "" &&
-    h.state !== "" &&
-    h.zip.trim() !== "" &&
-    isValidMMYY(h.moveInDate)
-  );
-
-  const canProceed = primaryRequired && (historyBlocksNeeded === 0 || historyValid);
+  const canProceed = primaryFilled && historyFilled;
 
   function handleSaveNext() {
     if (!canProceed) return;
     const existingDone = done ? done.split(",").filter(Boolean) : [];
-    if (!existingDone.includes("address")) {
-      existingDone.push("address");
-    }
-    const newDone = existingDone.join(",");
-    router.push(`/apply/housing?type=${type}&done=${newDone}`);
+    if (!existingDone.includes("address")) existingDone.push("address");
+    router.push(`/apply/housing?type=${type}&done=${existingDone.join(",")}`);
   }
 
   const mainTitleStyle: React.CSSProperties = {
@@ -190,6 +215,15 @@ function AddressForm() {
     color: "#2f2f39",
   };
 
+  const subHeadingStyle: React.CSSProperties = {
+    fontFamily: "var(--font-poppins), Poppins, sans-serif",
+    fontWeight: 400,
+    fontSize: "18px",
+    lineHeight: "28px",
+    letterSpacing: "0px",
+    color: "#2f2f39",
+  };
+
   return (
     <div className="relative flex flex-col gap-12 items-start overflow-x-hidden pb-14 pt-16 px-[276px] w-full">
 
@@ -211,35 +245,32 @@ function AddressForm() {
       {/* Form block */}
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* ── Section: Address ── */}
+        {/* ── Section: Current Address ── */}
         <div className="flex flex-col gap-5 w-full">
           <h1 style={mainTitleStyle}>What is your Address?</h1>
 
-          {/* Row 1: Country + City */}
           <div className="flex gap-5 w-full">
             <Select label="Country" required options={COUNTRIES} value={primary.country}
-              onChange={(v) => setPrimary((p) => ({ ...p, country: v }))} />
+              onChange={(v) => updatePrimary("country", v)} />
             <Input label="City" required value={primary.city}
-              onChange={(e) => setPrimary((p) => ({ ...p, city: e.target.value }))} />
+              onChange={(e) => updatePrimary("city", e.target.value)} />
           </div>
 
-          {/* Row 2: Address + State */}
           <div className="flex gap-5 w-full">
             <Input label="Address" required value={primary.address}
-              onChange={(e) => setPrimary((p) => ({ ...p, address: e.target.value }))} />
+              onChange={(e) => updatePrimary("address", e.target.value)} />
             <Select label="State" required options={US_STATES} value={primary.state}
-              onChange={(v) => setPrimary((p) => ({ ...p, state: v }))} />
+              onChange={(v) => updatePrimary("state", v)} />
           </div>
 
-          {/* Row 3: ZIP + Apartment */}
           <div className="flex gap-5 w-full">
             <Input label="ZIP Code" required value={primary.zip}
-              onChange={(e) => setPrimary((p) => ({ ...p, zip: e.target.value }))} />
+              onChange={(e) => updatePrimary("zip", e.target.value)} />
             <Input label="Apartment" value={primary.apartment}
-              onChange={(e) => setPrimary((p) => ({ ...p, apartment: e.target.value }))} />
+              onChange={(e) => updatePrimary("apartment", e.target.value)} />
           </div>
 
-          {/* Co-borrower checkbox on primary block if no history needed */}
+          {/* Co-borrower checkbox on primary block when no history needed */}
           {historyBlocksNeeded === 0 && applicationType === "co-borrower" && (
             <Checkbox
               label="Apply same address for Co-Borrower"
@@ -254,18 +285,20 @@ function AddressForm() {
         {/* ── Section: Move-in date ── */}
         <div className="flex flex-col gap-5 w-full">
           <h2 style={sectionHeadingStyle}>When did you start living here?</h2>
-          <Input
-            label="MM/YY"
+          <MonthYearPicker
+            label="MM/YYYY"
             required
             value={primary.moveInDate}
-            onChange={(e) => setPrimary((p) => ({ ...p, moveInDate: e.target.value }))}
-            rightIcon={<CalendarIcon />}
+            onChange={(date) => updatePrimary("moveInDate", date)}
+            maxDate={new Date()}
           />
         </div>
 
         {/* ── Progressive address history ── */}
-        {displayedHistory.map((histEntry, i) => {
+        {Array.from({ length: historyBlocksNeeded }, (_, i) => {
+          const histEntry = history[i] ?? emptyAddress();
           const isLast = i === historyBlocksNeeded - 1;
+
           return (
             <div key={i} className="flex flex-col gap-5 w-full">
               <h2 style={blockHeadingStyle}>
@@ -274,23 +307,24 @@ function AddressForm() {
 
               <div className="flex gap-5 w-full">
                 <Select label="Country" required options={COUNTRIES} value={histEntry.country}
-                  onChange={(v) => handleHistoryUpdate(i, "country", v)} />
+                  onChange={(v) => updateHistory(i, "country", v)} />
                 <Input label="City" required value={histEntry.city}
-                  onChange={(e) => handleHistoryUpdate(i, "city", e.target.value)} />
+                  onChange={(e) => updateHistory(i, "city", e.target.value)} />
               </div>
               <div className="flex gap-5 w-full">
                 <Input label="Address" required value={histEntry.address}
-                  onChange={(e) => handleHistoryUpdate(i, "address", e.target.value)} />
+                  onChange={(e) => updateHistory(i, "address", e.target.value)} />
                 <Select label="State" required options={US_STATES} value={histEntry.state}
-                  onChange={(v) => handleHistoryUpdate(i, "state", v)} />
+                  onChange={(v) => updateHistory(i, "state", v)} />
               </div>
               <div className="flex gap-5 w-full">
                 <Input label="ZIP Code" required value={histEntry.zip}
-                  onChange={(e) => handleHistoryUpdate(i, "zip", e.target.value)} />
+                  onChange={(e) => updateHistory(i, "zip", e.target.value)} />
                 <Input label="Apartment" value={histEntry.apartment}
-                  onChange={(e) => handleHistoryUpdate(i, "apartment", e.target.value)} />
+                  onChange={(e) => updateHistory(i, "apartment", e.target.value)} />
               </div>
 
+              {/* Co-borrower checkbox on last block */}
               {isLast && applicationType === "co-borrower" && (
                 <Checkbox
                   label="Apply same address for Co-Borrower"
@@ -300,21 +334,13 @@ function AddressForm() {
               )}
 
               <div className="flex flex-col gap-3 w-full">
-                <h3 style={{
-                  fontFamily: "var(--font-poppins), Poppins, sans-serif",
-                  fontWeight: 400,
-                  fontSize: "18px",
-                  lineHeight: "28px",
-                  color: "#2f2f39",
-                }}>
-                  When did you start living here?
-                </h3>
-                <Input
-                  label="MM/YY"
+                <h3 style={subHeadingStyle}>When did you start living here?</h3>
+                <MonthYearPicker
+                  label="MM/YYYY"
                   required
                   value={histEntry.moveInDate}
-                  onChange={(e) => handleHistoryUpdate(i, "moveInDate", e.target.value)}
-                  rightIcon={<CalendarIcon />}
+                  onChange={(date) => updateHistory(i, "moveInDate", date)}
+                  maxDate={primary.moveInDate ?? new Date()}
                 />
               </div>
             </div>
@@ -322,7 +348,7 @@ function AddressForm() {
         })}
 
         {/* ── Navigation: Save & Next ── */}
-        <div className="flex gap-0 items-center w-full">
+        <div className="flex items-center w-full">
           <button
             type="button"
             onClick={handleSaveNext}
