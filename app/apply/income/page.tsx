@@ -305,7 +305,6 @@ function IncomeTypeGrid({
     <div className="grid grid-cols-2 gap-5 w-full">
       {options.map((opt) => {
         const selected = value === opt.value;
-        const tall = opt.value === "retired" || opt.value === "other";
         return (
           <button
             key={opt.value}
@@ -313,7 +312,7 @@ function IncomeTypeGrid({
             onClick={() => onChange(opt.value)}
             className="flex items-center justify-center px-5 rounded-[2px] border transition-colors cursor-pointer"
             style={{
-              height: tall ? 72 : 44,
+              height: 72,
               background: selected ? "#fcfafe" : "#ffffff",
               borderColor: selected ? "#4b0ea3" : "#dcdcde",
               fontFamily: "var(--font-figtree), Figtree, sans-serif",

@@ -38,3 +38,13 @@ body {
   background: var(--color-bg-page);
   margin: 0;
 }
+
+/* Hide number input spinner arrows (used in CurrencyInput) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}

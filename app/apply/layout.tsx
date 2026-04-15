@@ -29,14 +29,14 @@ function ApplyLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex bg-white">
       <Sidebar
         currentStep={currentStep}
         completedSteps={completedSteps}
         applicationType={applicationType}
         onEditStep={handleEditStep}
       />
-      <main className="flex-1 relative">
+      <main className="flex-1 min-h-screen">
         {children}
       </main>
     </div>
@@ -46,9 +46,9 @@ function ApplyLayoutInner({ children }: { children: React.ReactNode }) {
 export default function ApplyLayout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen bg-white">
-        <div className="relative shrink-0 w-[324px] min-h-screen" />
-        <main className="flex-1 relative">{children}</main>
+      <div className="flex bg-white">
+        <div className="shrink-0 w-[324px] min-h-screen" />
+        <main className="flex-1 min-h-screen">{children}</main>
       </div>
     }>
       <ApplyLayoutInner>{children}</ApplyLayoutInner>
