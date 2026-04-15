@@ -22,7 +22,7 @@ export default function TypeOfApplicationPage() {
         </div>
 
         {/* Main content */}
-        <div className="flex flex-col items-end px-[296px] pb-14 w-full">
+        <div className="flex flex-col items-center px-[296px] pb-14 w-full">
           <div className="flex flex-col gap-8 items-start w-[564px]">
             <h1
               style={{
@@ -115,7 +115,7 @@ export default function TypeOfApplicationPage() {
       </div>
 
       {/* Footer */}
-      <div className="w-full border-t-4 border-[#f6f6f7] px-[100px] py-6 flex flex-col items-center gap-2">
+      <div className="w-full border-t-4 border-[#f6f6f7] px-[100px] flex flex-col items-center justify-center gap-2" style={{ height: "115px" }}>
         <p
           style={{
             fontFamily: "var(--font-figtree), Figtree, sans-serif",
