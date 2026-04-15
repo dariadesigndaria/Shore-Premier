@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
+import ComboSelect from "@/components/form/ComboSelect";
 import Checkbox from "@/components/form/Checkbox";
 import ExpandableQuestion from "@/components/form/ExpandableQuestion";
 import MonthYearPicker from "@/components/form/MonthYearPicker";
@@ -250,7 +251,7 @@ function AddressForm() {
           <h1 style={mainTitleStyle}>What is your Address?</h1>
 
           <div className="flex gap-5 w-full">
-            <Select label="Country" required options={COUNTRIES} value={primary.country}
+            <ComboSelect label="Country" required options={COUNTRIES} value={primary.country}
               onChange={(v) => updatePrimary("country", v)} />
             <Input label="City" required value={primary.city}
               onChange={(e) => updatePrimary("city", e.target.value)} />
@@ -259,7 +260,7 @@ function AddressForm() {
           <div className="flex gap-5 w-full">
             <Input label="Address" required value={primary.address}
               onChange={(e) => updatePrimary("address", e.target.value)} />
-            <Select label="State" required options={US_STATES} value={primary.state}
+            <ComboSelect label="State" required options={US_STATES} value={primary.state}
               onChange={(v) => updatePrimary("state", v)} />
           </div>
 
@@ -306,7 +307,7 @@ function AddressForm() {
               </h2>
 
               <div className="flex gap-5 w-full">
-                <Select label="Country" required options={COUNTRIES} value={histEntry.country}
+                <ComboSelect label="Country" required options={COUNTRIES} value={histEntry.country}
                   onChange={(v) => updateHistory(i, "country", v)} />
                 <Input label="City" required value={histEntry.city}
                   onChange={(e) => updateHistory(i, "city", e.target.value)} />
@@ -314,7 +315,7 @@ function AddressForm() {
               <div className="flex gap-5 w-full">
                 <Input label="Address" required value={histEntry.address}
                   onChange={(e) => updateHistory(i, "address", e.target.value)} />
-                <Select label="State" required options={US_STATES} value={histEntry.state}
+                <ComboSelect label="State" required options={US_STATES} value={histEntry.state}
                   onChange={(v) => updateHistory(i, "state", v)} />
               </div>
               <div className="flex gap-5 w-full">

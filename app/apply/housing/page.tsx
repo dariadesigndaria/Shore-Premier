@@ -2,9 +2,9 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Input from "@/components/form/Input";
 import SingleSelector from "@/components/form/SingleSelector";
 import Checkbox from "@/components/form/Checkbox";
+import CurrencyInput from "@/components/form/CurrencyInput";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
 
 const HOUSING_TYPES = [
@@ -21,13 +21,16 @@ interface HousingState {
   housingType: string;
   ownType: string;
   monthlyPayment: string;
+  currency: string;
   sameForCoBorrower: boolean;
 }
 
 const STORAGE_KEY = "easyfund_housing";
 
 function loadFromStorage(): HousingState {
-  const empty: HousingState = { housingType: "", ownType: "", monthlyPayment: "", sameForCoBorrower: false };
+  const empty: HousingState = {
+    housingType: "", ownType: "", monthlyPayment: "", currency: "USD", sameForCoBorrower: false,
+  };
   if (typeof window === "undefined") return empty;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -35,6 +38,11 @@ function loadFromStorage(): HousingState {
   } catch {
     return empty;
   }
+}
+
+// Monthly payment is required unless "own outright" is selected
+function needsPayment(state: HousingState): boolean {
+  return !(state.housingType === "own" && state.ownType === "outright");
 }
 
 function HousingForm() {
@@ -55,10 +63,13 @@ function HousingForm() {
     setState((prev) => ({ ...prev, [field]: value }));
   }
 
+  // Own outright = no payment needed
+  const paymentRequired = needsPayment(state);
+
   const canProceed =
     state.housingType !== "" &&
-    state.monthlyPayment.trim() !== "" &&
-    (state.housingType !== "own" || state.ownType !== "");
+    (state.housingType !== "own" || state.ownType !== "") &&
+    (!paymentRequired || state.monthlyPayment.trim() !== "");
 
   function handleSaveNext() {
     if (!canProceed) return;
@@ -88,7 +99,7 @@ function HousingForm() {
   return (
     <div className="relative flex flex-col gap-12 items-start overflow-x-hidden pb-14 pt-16 px-[276px] w-full">
 
-      {/* Save & Exit button (top-right) */}
+      {/* Save & Exit */}
       <button
         type="button"
         className="absolute top-8 right-10 flex items-center justify-center h-10 px-5 rounded-[4px] border border-[#22222d] bg-transparent hover:bg-[rgba(34,34,45,0.04)] transition-colors cursor-pointer"
@@ -103,10 +114,9 @@ function HousingForm() {
         Save &amp; Exit
       </button>
 
-      {/* Form block */}
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* ── Section: Housing Situation ── */}
+        {/* ── Housing type ── */}
         <div className="flex flex-col gap-5 w-full">
           <h1 style={mainTitleStyle}>What is your housing situation?</h1>
           <SingleSelector
@@ -116,7 +126,7 @@ function HousingForm() {
           />
         </div>
 
-        {/* ── Own type sub-selector (conditional) ── */}
+        {/* ── Own sub-type ── */}
         {state.housingType === "own" && (
           <div className="flex flex-col gap-5 w-full">
             <SingleSelector
@@ -127,16 +137,17 @@ function HousingForm() {
           </div>
         )}
 
-        {/* ── Monthly payment (shown after housing type selected) ── */}
-        {state.housingType !== "" && (
+        {/* ── Monthly payment (hidden for Own Outright) ── */}
+        {state.housingType !== "" && paymentRequired && (
           <div className="flex flex-col gap-5 w-full">
             <h2 style={sectionHeadingStyle}>What is your monthly housing payment?</h2>
-            <Input
+            <CurrencyInput
               label="Monthly Payment"
               required
-              type="number"
               value={state.monthlyPayment}
-              onChange={(e) => update("monthlyPayment", e.target.value)}
+              currency={state.currency}
+              onValueChange={(v) => update("monthlyPayment", v)}
+              onCurrencyChange={(v) => update("currency", v)}
             />
             {applicationType === "co-borrower" && (
               <Checkbox
@@ -148,7 +159,7 @@ function HousingForm() {
           </div>
         )}
 
-        {/* ── Navigation: Save & Next ── */}
+        {/* ── Navigation ── */}
         <div className="flex items-center w-full">
           <button
             type="button"
@@ -176,7 +187,7 @@ function HousingForm() {
         </div>
       </div>
 
-      {/* Help button (bottom-right) */}
+      {/* Help button */}
       <div className="fixed bottom-14 right-14 z-50">
         <button
           type="button"

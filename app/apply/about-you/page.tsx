@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
+import ComboSelect from "@/components/form/ComboSelect";
 import SingleSelector from "@/components/form/SingleSelector";
 import ExpandableQuestion from "@/components/form/ExpandableQuestion";
 import DatePicker from "@/components/form/DatePicker";
@@ -217,7 +218,7 @@ function AboutYouForm() {
         {/* ── Section: Country of Residence ── */}
         <div className="flex flex-col gap-5 w-full">
           <h2 style={sectionHeadingStyle}>What is your country of residence</h2>
-          <Select label="Country of Residence" required options={COUNTRIES} value={form.country} onChange={update("country")} />
+          <ComboSelect label="Country of Residence" required options={COUNTRIES} value={form.country} onChange={update("country")} />
           <ExpandableQuestion answer="We ask for your country of residence to ensure we show financing options and terms that apply to your location and comply with local regulations." />
         </div>
 
@@ -227,7 +228,7 @@ function AboutYouForm() {
           <div className="flex flex-col gap-5 w-full">
             <div className="flex gap-5 w-full">
               <Select label="ID Type" required options={ID_TYPES} value={form.idType} onChange={update("idType")} />
-              <Select label="State of Issue" required options={US_STATES} value={form.idState} onChange={update("idState")} />
+              <ComboSelect label="State of Issue" required options={US_STATES} value={form.idState} onChange={update("idState")} />
             </div>
             <Input label="ID Number" required value={form.idNumber} onChange={handleInput("idNumber")} />
           </div>

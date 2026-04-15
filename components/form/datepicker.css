@@ -1,13 +1,17 @@
-/* YachtWay design system datepicker styles */
+/* ── YachtWay design system datepicker styles ── */
 
+/* Wrapper & shell */
 .yw-calendar.react-datepicker {
   border: 0 !important;
   border-radius: 8px !important;
   font-family: var(--font-figtree), Figtree, sans-serif;
   box-shadow: 0px 4px 32px 0px rgba(140, 140, 140, 0.24);
-  margin-top: 4px;
+  background: #fff;
+  overflow: hidden;
+  min-width: 280px;
 }
 
+/* ── Header (day picker) ── */
 .yw-calendar .react-datepicker__header {
   padding: 0 !important;
   border: 0 !important;
@@ -15,22 +19,26 @@
   background-color: #fff !important;
 }
 
-.yw-calendar .react-datepicker__current-month,
-.yw-calendar .react-datepicker__navigation-icon {
+.yw-calendar .react-datepicker__current-month {
   font-family: var(--font-figtree), Figtree, sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: #2f2f39;
+  padding: 12px 0 8px;
 }
 
 .yw-calendar .react-datepicker__navigation {
-  top: 8px;
+  top: 10px;
 }
 
-.yw-calendar .react-datepicker__week {
-  display: flex;
+.yw-calendar .react-datepicker__navigation-icon::before {
+  border-color: #2f2f39;
+  border-width: 2px 2px 0 0;
+  width: 7px;
+  height: 7px;
 }
 
+/* ── Day names row ── */
 .yw-calendar .react-datepicker__day-names {
   display: flex;
   min-height: 30px;
@@ -50,6 +58,11 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 14px;
+}
+
+/* ── Day cells ── */
+.yw-calendar .react-datepicker__week {
+  display: flex;
 }
 
 .yw-calendar .react-datepicker__month {
@@ -93,6 +106,7 @@
   color: #e1e5ea !important;
 }
 
+/* ── Month/Year dropdowns (showMonthDropdown / showYearDropdown) ── */
 .yw-calendar .react-datepicker__month-select,
 .yw-calendar .react-datepicker__year-select {
   font-family: var(--font-figtree), Figtree, sans-serif;
@@ -103,4 +117,99 @@
   padding: 2px 4px;
   background: white;
   cursor: pointer;
+}
+
+/* ── Month picker (showMonthYearPicker) ── */
+.yw-calendar .react-datepicker__header--has-time-select,
+.yw-calendar .react-datepicker__header {
+  text-align: center;
+}
+
+/* Year heading inside month picker */
+.yw-calendar .react-datepicker__year-text,
+.yw-calendar .react-datepicker__current-month.react-datepicker__current-month--hasMonthYearDropdown {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Month grid container */
+.yw-calendar .react-datepicker__monthPicker {
+  padding: 8px;
+  width: 272px;
+  box-sizing: border-box;
+}
+
+/* Each row of 3 months */
+.yw-calendar .react-datepicker__month-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+/* Individual month cell */
+.yw-calendar .react-datepicker__month-text {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 40px !important;
+  border-radius: 200px !important;
+  font-family: var(--font-figtree), Figtree, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400;
+  color: #2f2f39;
+  cursor: pointer;
+  margin: 0 2px !important;
+  transition: background 0.15s;
+}
+
+.yw-calendar .react-datepicker__month-text:hover:not(.react-datepicker__month-text--disabled) {
+  background-color: #f8f5fb !important;
+  border-radius: 200px !important;
+  color: #2f2f39 !important;
+}
+
+.yw-calendar .react-datepicker__month-text--selected,
+.yw-calendar .react-datepicker__month-text--in-selecting-range,
+.yw-calendar .react-datepicker__month-text--in-range {
+  background: linear-gradient(254deg, #8729fa -142.88%, #2b0075 175.67%) !important;
+  color: #fff !important;
+  border-radius: 200px !important;
+  font-weight: 600 !important;
+}
+
+.yw-calendar .react-datepicker__month-text--keyboard-selected {
+  background-color: transparent !important;
+  color: #2f2f39 !important;
+}
+
+.yw-calendar .react-datepicker__month-text--today {
+  font-weight: 700 !important;
+}
+
+.yw-calendar .react-datepicker__month-text--disabled {
+  color: #e1e5ea !important;
+  cursor: default;
+}
+
+/* Year navigation in month picker header */
+.yw-calendar .react-datepicker__year-read-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2f2f39;
+  cursor: pointer;
+  visibility: visible !important;
+}
+
+.yw-calendar .react-datepicker__year-read-view--down-arrow {
+  border-color: #2f2f39;
+  border-width: 2px 2px 0 0;
+  width: 7px;
+  height: 7px;
+  top: 1px;
 }
