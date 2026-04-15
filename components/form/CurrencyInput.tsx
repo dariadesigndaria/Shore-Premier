@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useEffect, useState } from "react";
 import { ChevronDownIcon } from "@/components/icons";
 
 const CURRENCIES = [
@@ -31,78 +31,93 @@ export default function CurrencyInput({
   error,
 }: CurrencyInputProps) {
   const id = useId();
+  const [focused, setFocused] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const filled = Boolean(value);
+  const raised = filled || focused;
+
+  // Close currency dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setCurrencyOpen(false);
+      }
+    }
+    if (currencyOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [currencyOpen]);
 
   return (
     <div className="flex flex-col w-full">
       <div
-        className={`relative flex items-center h-[48px] rounded-[2px] border bg-white transition-colors
-          ${error ? "border-red-500" : "border-[#dcdcde]"}
-          has-[input:focus]:border-[#4b0ea3] has-[input:focus]:shadow-[0_0_0_2px_rgba(75,14,163,0.08)]
+        className={`relative flex items-center h-[48px] px-3 rounded-[2px] border bg-white transition-colors
+          ${error ? "border-red-500" : focused ? "border-[#4b0ea3] shadow-[0_0_0_2px_rgba(75,14,163,0.08)]" : "border-[#dcdcde]"}
           hover:border-[#a6a6ab]`}
       >
-        {/* Amount input area */}
-        <div className="relative flex-1 flex items-center h-full px-3 min-w-0">
-          {/* Floating label */}
-          <label
-            htmlFor={id}
-            className="absolute left-0 pointer-events-none select-none transition-all duration-150"
-            style={
-              filled
-                ? {
-                    fontFamily: "var(--font-figtree), Figtree, sans-serif",
-                    fontWeight: 500,
-                    fontSize: "11px",
-                    lineHeight: "16px",
-                    color: "#a6a6ab",
-                    top: "5px",
-                  }
-                : {
-                    fontFamily: "var(--font-figtree), Figtree, sans-serif",
-                    fontWeight: 500,
-                    fontSize: "14px",
-                    lineHeight: "20px",
-                    color: "#727279",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                  }
-            }
-          >
-            {label}
-            {required && <span style={{ fontWeight: 400 }}>*</span>}
-          </label>
+        {/* Floating label */}
+        <label
+          htmlFor={id}
+          className="absolute left-3 pointer-events-none select-none transition-all duration-150 z-10"
+          style={
+            raised
+              ? {
+                  fontFamily: "var(--font-figtree), Figtree, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "11px",
+                  lineHeight: "16px",
+                  color: "#a6a6ab",
+                  top: "5px",
+                }
+              : {
+                  fontFamily: "var(--font-figtree), Figtree, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                  lineHeight: "20px",
+                  color: "#727279",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                }
+          }
+        >
+          {label}
+          {required && <span style={{ fontWeight: 400 }}>*</span>}
+        </label>
 
-          <input
-            id={id}
-            type="number"
-            value={value}
-            onChange={(e) => onValueChange(e.target.value)}
-            className="absolute inset-0 w-full h-full bg-transparent outline-none border-none px-3"
-            style={{
-              fontFamily: "var(--font-figtree), Figtree, sans-serif",
-              fontWeight: 400,
-              fontSize: "14px",
-              lineHeight: "20px",
-              color: "#2f2f39",
-              paddingTop: filled ? "20px" : "0px",
-            }}
-          />
-        </div>
-
-        {/* Vertical divider */}
-        <div
-          className="shrink-0 self-stretch"
-          style={{ width: 1, background: "#dcdcde", margin: "8px 0" }}
+        {/* Amount input */}
+        <input
+          id={id}
+          type="number"
+          value={value}
+          onChange={(e) => onValueChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          className="absolute inset-0 w-full h-full bg-transparent outline-none border-none px-3"
+          style={{
+            fontFamily: "var(--font-figtree), Figtree, sans-serif",
+            fontWeight: 400,
+            fontSize: "14px",
+            lineHeight: "20px",
+            color: "#2f2f39",
+            paddingTop: raised ? "20px" : "0px",
+            paddingRight: "88px", // leave room for currency chip
+          }}
         />
 
-        {/* Currency selector */}
-        <div className="relative shrink-0">
+        {/* Currency chip — positioned inside field on the right */}
+        <div ref={dropdownRef} className="absolute right-3 top-1/2 -translate-y-1/2 z-20">
           <button
             type="button"
-            className="flex items-center gap-1 px-3 h-full cursor-pointer bg-transparent border-none"
-            style={{ height: 48 }}
             onClick={() => setCurrencyOpen((v) => !v)}
+            className="flex items-center gap-1 rounded-[4px] cursor-pointer border-none outline-none"
+            style={{
+              height: 24,
+              paddingLeft: 6,
+              paddingRight: 4,
+              background: "#f9fafb",
+            }}
             aria-haspopup="listbox"
             aria-expanded={currencyOpen}
           >
@@ -111,12 +126,15 @@ export default function CurrencyInput({
                 fontFamily: "var(--font-figtree), Figtree, sans-serif",
                 fontWeight: 500,
                 fontSize: "14px",
+                lineHeight: "20px",
                 color: "#2f2f39",
               }}
             >
               {currency}
             </span>
-            <ChevronDownIcon />
+            <ChevronDownIcon
+              className={`transition-transform duration-150 ${currencyOpen ? "rotate-180" : ""}`}
+            />
           </button>
 
           {/* Currency dropdown */}
@@ -142,7 +160,8 @@ export default function CurrencyInput({
                     fontWeight: c.value === currency ? 600 : 400,
                     color: c.value === currency ? "#4b0ea3" : "#2f2f39",
                   }}
-                  onClick={() => {
+                  onMouseDown={(e) => {
+                    e.preventDefault();
                     onCurrencyChange(c.value);
                     setCurrencyOpen(false);
                   }}
