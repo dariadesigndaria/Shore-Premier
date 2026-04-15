@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
 import SingleSelector from "@/components/form/SingleSelector";
@@ -61,7 +62,13 @@ interface FormData {
   ssn: string;
 }
 
-export default function AboutYouPage() {
+function AboutYouForm() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const type = searchParams.get("type") ?? "";
+  const done = searchParams.get("done") ?? "";
+
   const [form, setForm] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -83,6 +90,29 @@ export default function AboutYouPage() {
   function handleInput(field: keyof FormData) {
     return (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  }
+
+  const requiredFilled =
+    form.firstName.trim() !== "" &&
+    form.lastName.trim() !== "" &&
+    form.email.trim() !== "" &&
+    form.phone.trim() !== "" &&
+    form.dateOfBirth !== null &&
+    form.country !== "" &&
+    form.idType !== "" &&
+    form.idState !== "" &&
+    form.idNumber.trim() !== "" &&
+    form.hasSSN !== "" &&
+    (form.hasSSN !== "yes" || form.ssn.trim() !== "");
+
+  function handleSaveNext() {
+    if (!requiredFilled) return;
+    const existingDone = done ? done.split(",").filter(Boolean) : [];
+    if (!existingDone.includes("about-you")) {
+      existingDone.push("about-you");
+    }
+    const newDone = existingDone.join(",");
+    router.push(`/apply/address?type=${type}&done=${newDone}`);
   }
 
   const sectionHeadingStyle: React.CSSProperties = {
@@ -118,7 +148,7 @@ export default function AboutYouPage() {
           color: "#2f2f39",
         }}
       >
-        Save  &amp; Exit
+        Save &amp; Exit
       </button>
 
       {/* Form block */}
@@ -128,38 +158,14 @@ export default function AboutYouPage() {
         <div className="flex flex-col gap-5 w-full">
           <h1 style={mainTitleStyle}>What are your personal details</h1>
 
-          {/* First Name + Last Name */}
           <div className="flex gap-5 w-full">
-            <Input
-              label="First Name"
-              required
-              value={form.firstName}
-              onChange={handleInput("firstName")}
-            />
-            <Input
-              label="Last Name"
-              required
-              value={form.lastName}
-              onChange={handleInput("lastName")}
-            />
+            <Input label="First Name" required value={form.firstName} onChange={handleInput("firstName")} />
+            <Input label="Last Name" required value={form.lastName} onChange={handleInput("lastName")} />
           </div>
 
-          {/* Email + Phone */}
           <div className="flex gap-5 w-full">
-            <Input
-              label="Email"
-              required
-              type="email"
-              value={form.email}
-              onChange={handleInput("email")}
-            />
-            <Input
-              label="Phone Number"
-              required
-              type="tel"
-              value={form.phone}
-              onChange={handleInput("phone")}
-            />
+            <Input label="Email" required type="email" value={form.email} onChange={handleInput("email")} />
+            <Input label="Phone Number" required type="tel" value={form.phone} onChange={handleInput("phone")} />
           </div>
         </div>
 
@@ -177,83 +183,35 @@ export default function AboutYouPage() {
         {/* ── Section: Country of Residence ── */}
         <div className="flex flex-col gap-5 w-full">
           <h2 style={sectionHeadingStyle}>What is your country of residence</h2>
-          <div className="flex flex-col gap-3 w-full">
-            <Select
-              label="Country of Residence"
-              required
-              options={COUNTRIES}
-              value={form.country}
-              onChange={update("country")}
-            />
-          </div>
-          <ExpandableQuestion
-            answer="We ask for your country of residence to ensure we show financing options and terms that apply to your location and comply with local regulations."
-          />
+          <Select label="Country of Residence" required options={COUNTRIES} value={form.country} onChange={update("country")} />
+          <ExpandableQuestion answer="We ask for your country of residence to ensure we show financing options and terms that apply to your location and comply with local regulations." />
         </div>
 
         {/* ── Section: Government-issued ID ── */}
         <div className="flex flex-col gap-6 w-full">
           <h2 style={sectionHeadingStyle}>What is your government-issued ID number?</h2>
-
           <div className="flex flex-col gap-5 w-full">
-            {/* ID Type + State of Issue */}
             <div className="flex gap-5 w-full">
-              <Select
-                label="ID Type"
-                required
-                options={ID_TYPES}
-                value={form.idType}
-                onChange={update("idType")}
-              />
-              <Select
-                label="State of Issue"
-                required
-                options={US_STATES}
-                value={form.idState}
-                onChange={update("idState")}
-              />
+              <Select label="ID Type" required options={ID_TYPES} value={form.idType} onChange={update("idType")} />
+              <Select label="State of Issue" required options={US_STATES} value={form.idState} onChange={update("idState")} />
             </div>
-
-            {/* ID Number */}
-            <Input
-              label="ID Number"
-              required
-              value={form.idNumber}
-              onChange={handleInput("idNumber")}
-            />
+            <Input label="ID Number" required value={form.idNumber} onChange={handleInput("idNumber")} />
           </div>
-
-          <ExpandableQuestion
-            answer="Lenders require your government-issued ID number to verify your identity, prevent fraud, and comply with federal regulations. This helps ensure your loan application is processed securely and accurately."
-          />
+          <ExpandableQuestion answer="Lenders require your government-issued ID number to verify your identity, prevent fraud, and comply with federal regulations. This helps ensure your loan application is processed securely and accurately." />
         </div>
 
         {/* ── Section: SSN ── */}
         <div className="flex flex-col gap-6 w-full">
           <h2 style={sectionHeadingStyle}>Do you have a Social Security Number?</h2>
-          <SingleSelector
-            options={SSN_OPTIONS}
-            value={form.hasSSN}
-            onChange={update("hasSSN")}
-          />
+          <SingleSelector options={SSN_OPTIONS} value={form.hasSSN} onChange={update("hasSSN")} />
         </div>
 
         {/* ── Section: SSN Number (conditional) ── */}
         {form.hasSSN === "yes" && (
           <div className="flex flex-col gap-6 w-full">
             <h2 style={sectionHeadingStyle}>What is your Social Security Number?</h2>
-            <div className="flex flex-col gap-5 w-full">
-              <Input
-                label="SSN Number"
-                required
-                type="password"
-                value={form.ssn}
-                onChange={handleInput("ssn")}
-              />
-            </div>
-            <ExpandableQuestion
-              answer="Your Social Security Number is used to verify your identity, check your credit history, and comply with federal lending regulations. For pre-qualification, this will only result in a soft credit pull, which does not affect your credit score."
-            />
+            <Input label="SSN Number" required type="password" value={form.ssn} onChange={handleInput("ssn")} />
+            <ExpandableQuestion answer="Your Social Security Number is used to verify your identity, check your credit history, and comply with federal lending regulations. For pre-qualification, this will only result in a soft credit pull, which does not affect your credit score." />
           </div>
         )}
 
@@ -261,10 +219,13 @@ export default function AboutYouPage() {
         <div className="flex gap-0 items-center w-full">
           <button
             type="button"
-            className="flex flex-1 items-center justify-center gap-2 h-10 px-5 rounded-[4px] cursor-pointer"
+            onClick={handleSaveNext}
+            disabled={!requiredFilled}
+            className="flex flex-1 items-center justify-center gap-2 h-10 px-5 rounded-[4px]"
             style={{
-              background: "#4b0ea3",
+              background: requiredFilled ? "#4b0ea3" : "#ccb9e7",
               border: "1px solid rgba(255,255,255,0.2)",
+              cursor: requiredFilled ? "pointer" : "not-allowed",
             }}
           >
             <span
@@ -302,5 +263,13 @@ export default function AboutYouPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function AboutYouPage() {
+  return (
+    <Suspense fallback={<div className="flex-1" />}>
+      <AboutYouForm />
+    </Suspense>
   );
 }

@@ -35,7 +35,7 @@ export default function DatePicker({
     : "";
 
   return (
-    <div className="flex flex-col w-full" ref={containerRef}>
+    <div className="relative flex flex-col w-full" ref={containerRef}>
       <div
         className={`relative flex items-center h-[48px] px-3 rounded-[2px] border bg-white transition-colors cursor-pointer
           ${error ? "border-red-500" : open ? "border-[#4b0ea3] shadow-[0_0_0_2px_rgba(75,14,163,0.08)]" : "border-[#dcdcde]"}
@@ -93,9 +93,9 @@ export default function DatePicker({
         </div>
       </div>
 
-      {/* react-datepicker rendered inline via portal */}
+      {/* react-datepicker rendered as absolutely-positioned overlay */}
       {open && (
-        <div className="relative">
+        <div className="absolute z-50 left-0 mt-1" style={{ top: "100%" }}>
           <ReactDatePicker
             selected={value}
             onChange={(date: Date | null) => {

@@ -7,26 +7,31 @@ import {
   UsersIcon,
   MotorYachtIcon,
   SummaryIcon,
+  CheckmarkIcon,
+  PenIcon,
 } from "@/components/icons";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const steps = [
-  { id: "about-you", label: "About You", icon: <FileIcon /> },
-  { id: "address", label: "Address", icon: <MapPinIcon /> },
-  { id: "housing", label: "Housing", icon: <SkyscraperIcon /> },
-  { id: "employment", label: "Employment Info", icon: <BriefcaseIcon /> },
-  { id: "income", label: "Additional Income", icon: <CashIcon /> },
-  { id: "co-borrower", label: "Co-Borrower Info", icon: <UsersIcon /> },
-  { id: "boat", label: "Boat Information", icon: <MotorYachtIcon /> },
-  { id: "summary", label: "Summary", icon: <SummaryIcon /> },
+  { id: "about-you", label: "About You", icon: (size: number, fill: string) => <FileIcon size={size} fill={fill} /> },
+  { id: "address", label: "Address", icon: (size: number, fill: string) => <MapPinIcon size={size} fill={fill} /> },
+  { id: "housing", label: "Housing", icon: (size: number, fill: string) => <SkyscraperIcon size={size} fill={fill} /> },
+  { id: "employment", label: "Employment Info", icon: (size: number, fill: string) => <BriefcaseIcon size={size} fill={fill} /> },
+  { id: "income", label: "Additional Income", icon: (size: number, fill: string) => <CashIcon size={size} fill={fill} /> },
+  { id: "co-borrower", label: "Co-Borrower Info", icon: (size: number, fill: string) => <UsersIcon size={size} fill={fill} /> },
+  { id: "boat", label: "Boat Information", icon: (size: number, fill: string) => <MotorYachtIcon size={size} fill={fill} /> },
+  { id: "summary", label: "Summary", icon: (size: number, fill: string) => <SummaryIcon size={size} fill={fill} /> },
 ];
 
 interface SidebarProps {
   currentStep: string;
+  completedSteps?: string[];
+  applicationType?: "individual" | "co-borrower";
+  onEditStep?: (stepId: string) => void;
 }
 
-export default function Sidebar({ currentStep }: SidebarProps) {
+export default function Sidebar({ currentStep, completedSteps = [], onEditStep }: SidebarProps) {
   return (
     <aside
       className="relative shrink-0 w-[324px] min-h-screen overflow-hidden self-stretch"
@@ -76,6 +81,7 @@ export default function Sidebar({ currentStep }: SidebarProps) {
         <nav className="flex flex-col">
           {steps.map((step, index) => {
             const isActive = step.id === currentStep;
+            const isCompleted = completedSteps.includes(step.id);
             const isLast = index === steps.length - 1;
 
             return (
@@ -95,7 +101,21 @@ export default function Sidebar({ currentStep }: SidebarProps) {
                         boxShadow: "0px 0px 0px 2px rgba(167,181,195,0.2)",
                       }}
                     >
-                      {step.icon}
+                      {step.icon(20, "white")}
+                    </div>
+                  ) : isCompleted ? (
+                    /* Completed step: 28px container, bg white, purple icon */
+                    <div
+                      className="flex items-center justify-center shrink-0"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 4,
+                        background: "#ffffff",
+                        boxShadow: "0px 4px 32px 0px rgba(140,140,140,0.24)",
+                      }}
+                    >
+                      {step.icon(16, "#4b0ea3")}
                     </div>
                   ) : (
                     /* Inactive step: smaller 28px icon */
@@ -109,7 +129,7 @@ export default function Sidebar({ currentStep }: SidebarProps) {
                         boxShadow: "0px 4px 32px 0px rgba(140,140,140,0.24)",
                       }}
                     >
-                      {step.icon}
+                      {step.icon(16, "white")}
                     </div>
                   )}
 
@@ -120,16 +140,16 @@ export default function Sidebar({ currentStep }: SidebarProps) {
                         width: 2,
                         height: 12,
                         borderRadius: 8,
-                        background: "rgba(255,255,255,0.2)",
+                        background: isCompleted ? "#ffffff" : "rgba(255,255,255,0.2)",
                         flexShrink: 0,
                       }}
                     />
                   )}
                 </div>
 
-                {/* Step label */}
+                {/* Step label + action icons */}
                 <div
-                  className="flex items-center justify-center"
+                  className="flex items-center gap-2"
                   style={{
                     height: isActive ? 40 : 28,
                     minWidth: 0,
@@ -147,6 +167,20 @@ export default function Sidebar({ currentStep }: SidebarProps) {
                   >
                     {step.label}
                   </p>
+
+                  {isCompleted && (
+                    <>
+                      <CheckmarkIcon fill="white" size={16} />
+                      <button
+                        type="button"
+                        className="cursor-pointer bg-transparent border-none p-0 flex items-center"
+                        onClick={() => onEditStep?.(step.id)}
+                        aria-label={`Edit ${step.label}`}
+                      >
+                        <PenIcon fill="white" size={16} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             );
