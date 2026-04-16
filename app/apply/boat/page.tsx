@@ -550,11 +550,21 @@ function BoatForm() {
         {state.loanType && (
           <div className="flex flex-col gap-5 w-full">
             {/* Tooltip sits immediately after the "?" */}
-            <h2 style={{ ...sectionHeadingStyle, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-              <span>{llcQuestion}</span>
-              <span style={{ display: "inline-flex", alignItems: "center", marginLeft: 12 }}>
-                <LLCTooltip />
-              </span>
+            <h2 style={sectionHeadingStyle}>
+              {(() => {
+                const words = llcQuestion.split(" ");
+                const last = words[words.length - 1];
+                const rest = words.slice(0, -1).join(" ");
+                return (
+                  <>
+                    {rest}{" "}
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 12, whiteSpace: "nowrap" }}>
+                      {last}
+                      <LLCTooltip />
+                    </span>
+                  </>
+                );
+              })()}
             </h2>
             <SingleSelector
               options={[

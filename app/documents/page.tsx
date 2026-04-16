@@ -101,12 +101,9 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 function UploadAllNote({ text = "Upload all to proceed" }: { text?: string }) {
   return (
     <div className="flex items-center gap-2">
-      {/* Megaphone outline icon */}
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1.5 5.5H3.5L7.5 2.5V11.5L3.5 8.5H1.5C1.224 8.5 1 8.276 1 8V6C1 5.724 1.224 5.5 1.5 5.5Z" stroke="#727279" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M3.5 8.5V11.5" stroke="#727279" strokeWidth="1.1" strokeLinecap="round" />
-        <path d="M9.5 4.5C10.163 5.163 10.5 6 10.5 7C10.5 8 10.163 8.837 9.5 9.5" stroke="#727279" strokeWidth="1.1" strokeLinecap="round" />
-        <path d="M11 3C12.163 4.163 12.75 5.5 12.75 7C12.75 8.5 12.163 9.837 11 11" stroke="#727279" strokeWidth="1.1" strokeLinecap="round" />
+      {/* Megaphone icon from Figma design system */}
+      <svg width="14" height="14" viewBox="0 0 16.6626 16.6667" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fillRule="evenodd" clipRule="evenodd" d="M9.57926 0.625C9.57926 0.279822 9.29944 0 8.95426 0C8.60909 0 8.32926 0.279822 8.32926 0.625V2.29167C8.32926 2.63684 8.60909 2.91667 8.95426 2.91667C9.29944 2.91667 9.57926 2.63684 9.57926 2.29167V0.625ZM14.5294 3.01694C14.7735 2.77286 14.7735 2.37713 14.5294 2.13306C14.2854 1.88898 13.8896 1.88898 13.6456 2.13306L12.2206 3.55806C11.9765 3.80214 11.9765 4.19787 12.2206 4.44194C12.4646 4.68602 12.8604 4.68602 13.1044 4.44194L14.5294 3.01694ZM6.37111 4.26639C6.12703 4.02231 5.7313 4.02231 5.48722 4.26639C5.24315 4.51046 5.24315 4.90619 5.48722 5.15027L5.68863 5.35167L1.90261 10.2161L1.89751 10.2228L0.595558 11.5247C-0.198519 12.3188 -0.198519 13.5979 0.595558 14.3919L2.1422 15.9386L2.14409 15.9405C2.93261 16.739 4.22122 16.7335 5.01278 15.9419L5.93333 15.0214L7.39556 16.4836C7.63964 16.7277 8.03536 16.7277 8.27944 16.4836C8.52352 16.2395 8.52352 15.8438 8.27944 15.5997L6.87194 14.1922L11.1808 10.8439L11.3789 11.0419C11.623 11.286 12.0187 11.286 12.2628 11.0419C12.5069 10.7979 12.5069 10.4021 12.2628 10.1581L11.7359 9.63113C11.7186 9.60828 11.6996 9.5865 11.6791 9.566L10.324 8.21333C10.6813 7.64578 10.5942 6.89766 10.1129 6.41635C9.62673 5.93021 8.88332 5.85013 8.31486 6.20775L6.37111 4.26639ZM3.23169 10.5436L6.57935 6.2424L10.29 9.95307L5.98583 13.2978L3.23169 10.5436ZM14.3709 7.08333C14.0258 7.08333 13.7459 7.36316 13.7459 7.70833C13.7459 8.05351 14.0258 8.33333 14.3709 8.33333H16.0376C16.3828 8.33333 16.6626 8.05351 16.6626 7.70833C16.6626 7.36316 16.3828 7.08333 16.0376 7.08333H14.3709ZM2.4 11.488L1.47944 12.4086C1.17352 12.7145 1.17352 13.2021 1.47944 13.508L3.0328 15.0614C3.32779 15.361 3.82109 15.3659 4.12889 15.0581L5.04945 14.1375L2.4 11.488Z" fill="#727279"/>
       </svg>
       <p
         style={{
@@ -343,28 +340,35 @@ function DocumentsForm() {
 
           {/* ── Bank Statement section ── */}
           <div className="flex flex-col gap-4">
-            {/* Dynamic bank statement slots (2-col grid) */}
+            {/* Row 1: first bank slot + Purchase Agreement side-by-side */}
             <div className="grid grid-cols-2 gap-4">
-              {bankSlots.map((slot) => (
-                <UploadCard
-                  key={slot.id}
-                  label="Most Recent Bank Statement"
-                  file={slot.file}
-                  onFileChange={(f) => handleBankSlot(slot.id, f)}
-                />
-              ))}
-            </div>
-
-            {/* Purchase Agreement — left cell only */}
-            <div className="grid grid-cols-2 gap-4">
+              <UploadCard
+                key={bankSlots[0].id}
+                label="Most Recent Bank Statement"
+                file={bankSlots[0].file}
+                onFileChange={(f) => handleBankSlot(bankSlots[0].id, f)}
+              />
               <UploadCard
                 label="Purchase Agreement"
                 sublabel="Optional"
                 file={files["purchase_agreement"] ?? null}
                 onFileChange={(f) => handleFile("purchase_agreement", f)}
               />
-              <div />
             </div>
+
+            {/* Additional bank slots appear below when previous ones are filled */}
+            {bankSlots.length > 1 && (
+              <div className="grid grid-cols-2 gap-4">
+                {bankSlots.slice(1).map((slot) => (
+                  <UploadCard
+                    key={slot.id}
+                    label="Most Recent Bank Statement"
+                    file={slot.file}
+                    onFileChange={(f) => handleBankSlot(slot.id, f)}
+                  />
+                ))}
+              </div>
+            )}
 
             <WhyAsked />
           </div>
