@@ -100,19 +100,14 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function UploadAllNote({ text = "Upload all to proceed" }: { text?: string }) {
   return (
-    <div className="flex items-center gap-[6px]">
-      {/* Asterisk marker — no lock icon */}
-      <span
-        style={{
-          fontFamily: "var(--font-figtree), Figtree, sans-serif",
-          fontWeight: 500,
-          fontSize: "13px",
-          lineHeight: "18px",
-          color: "#727279",
-        }}
-      >
-        *
-      </span>
+    <div className="flex items-center gap-2">
+      {/* Megaphone outline icon */}
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.5 5.5H3.5L7.5 2.5V11.5L3.5 8.5H1.5C1.224 8.5 1 8.276 1 8V6C1 5.724 1.224 5.5 1.5 5.5Z" stroke="#727279" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M3.5 8.5V11.5" stroke="#727279" strokeWidth="1.1" strokeLinecap="round" />
+        <path d="M9.5 4.5C10.163 5.163 10.5 6 10.5 7C10.5 8 10.163 8.837 9.5 9.5" stroke="#727279" strokeWidth="1.1" strokeLinecap="round" />
+        <path d="M11 3C12.163 4.163 12.75 5.5 12.75 7C12.75 8.5 12.163 9.837 11 11" stroke="#727279" strokeWidth="1.1" strokeLinecap="round" />
+      </svg>
       <p
         style={{
           fontFamily: "var(--font-figtree), Figtree, sans-serif",

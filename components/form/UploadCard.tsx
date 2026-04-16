@@ -54,7 +54,7 @@ export default function UploadCard({ label, sublabel, file, onFileChange, tall, 
         /* ── Uploaded state (Figma pixel-perfect) ── */
         <div
           className={`flex flex-col bg-white rounded-[4px] border border-[#dcdcde] w-full${fill ? " h-full" : ""}`}
-          style={{ padding: 16, gap: 16 }}
+          style={{ padding: 16, gap: 16, minHeight: tall ? 88 : 100 }}
         >
           {/* File row: icon + name side-by-side */}
           <div className="flex items-center" style={{ gap: 12 }}>
@@ -136,9 +136,9 @@ export default function UploadCard({ label, sublabel, file, onFileChange, tall, 
         <button
           type="button"
           onClick={trigger}
-          className={`flex flex-col items-center justify-center w-full rounded-[4px] cursor-pointer hover:bg-[rgba(135,41,250,0.03)] transition-colors${fill ? " h-full" : ""}`}
+          className={`flex flex-col items-center justify-center w-full rounded-[4px] cursor-pointer hover:bg-[rgba(75,14,163,0.03)] transition-colors${fill ? " h-full" : ""}`}
           style={{
-            border: "1px dashed #8729fa",
+            border: "1px dashed #4b0ea3",
             background: "transparent",
             minHeight: tall ? 88 : 100,
             padding: "14px 16px",
@@ -147,7 +147,7 @@ export default function UploadCard({ label, sublabel, file, onFileChange, tall, 
         >
           {/* + icon */}
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 3.5V16.5M3.5 10H16.5" stroke="#8729fa" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M10 3.5V16.5M3.5 10H16.5" stroke="#4b0ea3" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
 
           {/* Label */}
@@ -157,7 +157,7 @@ export default function UploadCard({ label, sublabel, file, onFileChange, tall, 
               fontWeight: 500,
               fontSize: "12px",
               lineHeight: "17px",
-              color: "#8729fa",
+              color: "#4b0ea3",
               textAlign: "center",
             }}
           >

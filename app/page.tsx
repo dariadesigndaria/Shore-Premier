@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import ShorePremierLogo from "@/components/ShorePremierLogo";
 import YachtwayLogo from "@/components/YachtwayLogo";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
@@ -17,7 +16,11 @@ export default function TypeOfApplicationPage() {
 
         {/* Header */}
         <div className="w-full border-b-2 border-[rgba(112,128,144,0.04)] h-[72px] flex items-center justify-center bg-white shrink-0">
-          <ShorePremierLogo />
+          <img
+            src={`${BASE}/images/main-logo.png`}
+            alt="Shore Premier Finance"
+            style={{ height: 48, width: "auto", objectFit: "contain" }}
+          />
         </div>
 
         {/* Main content */}
