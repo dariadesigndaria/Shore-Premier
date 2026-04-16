@@ -32,7 +32,11 @@ interface SidebarProps {
   onEditStep?: (stepId: string) => void;
 }
 
-export default function Sidebar({ currentStep, completedSteps = [], onEditStep }: SidebarProps) {
+export default function Sidebar({ currentStep, completedSteps = [], applicationType, onEditStep }: SidebarProps) {
+  const visibleSteps = applicationType === "co-borrower"
+    ? steps
+    : steps.filter((s) => s.id !== "co-borrower");
+
   return (
     <aside className="sticky top-0 h-screen shrink-0 w-[324px] overflow-hidden">
       {/* Background */}
@@ -66,10 +70,10 @@ export default function Sidebar({ currentStep, completedSteps = [], onEditStep }
 
         {/* Stepper */}
         <nav className="flex flex-col flex-1 min-h-0 overflow-y-auto">
-          {steps.map((step, index) => {
+          {visibleSteps.map((step, index) => {
             const isActive = step.id === currentStep;
             const isCompleted = completedSteps.includes(step.id);
-            const isLast = index === steps.length - 1;
+            const isLast = index === visibleSteps.length - 1;
 
             return (
               <div key={step.id} className="flex gap-4 items-start pl-2 w-full">

@@ -1,35 +1,10 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-
-// Re-use the same DocumentsForm logic but with co-borrower data.
-// We dynamically import the form component to keep the file small.
-
-function readLS<T>(key: string): T | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : null;
-  } catch { return null; }
-}
-
-// Lazy-load the documents form to avoid duplicating all the code.
-// We pass co-borrower overrides via props.
-import dynamic from "next/dynamic";
-
-// The documents page exports DocumentsForm as a named export so we can
-// re-use it. But since we used a default export only, we'll import the
-// whole page and override via URL params — or more cleanly, extract the
-// shared form to a separate module.
-//
-// For simplicity, this page rebuilds the co-borrower variant inline,
-// pointing to the co-borrower's employment type and residency.
-
+import { useSearchParams, useRouter } from "next/navigation";
 import UploadCard from "@/components/form/UploadCard";
-import { useRouter } from "next/navigation";
 
-// ─── Slot definitions (same as documents page) ────────────────────────────────
+// ─── Slot definitions (mirrored from main documents page) ─────────────────────
 
 interface SlotDef { key: string; label: string; sublabel?: string; }
 
@@ -48,6 +23,12 @@ const SELF_EMPLOYED_SLOTS: SlotDef[] = [
   { key: "ptr_2024", label: "2024 Personal Tax Return (All Schedules)" },
   { key: "btr_2023", label: "2023 Business Tax Returns (All Schedules)", sublabel: "Optional" },
   { key: "btr_2024", label: "2024 Business Tax Returns (All Schedules)", sublabel: "Optional" },
+  { key: "pnl", label: "Signed and Dated Year to Date Profit & Loss", sublabel: "Optional" },
+];
+
+const SELF_EMPLOYED_SECONDARY_SLOTS: SlotDef[] = [
+  { key: "btr_2023", label: "2023 Business Tax Returns (All Schedules)" },
+  { key: "btr_2024", label: "2024 Business Tax Returns (All Schedules)" },
   { key: "pnl", label: "Signed and Dated Year to Date Profit & Loss", sublabel: "Optional" },
 ];
 
@@ -77,7 +58,23 @@ function getSlotsForType(t: string): SlotDef[] {
   }
 }
 
-function gridCols(t: string) { return t === "w2" ? "grid-cols-3" : "grid-cols-2"; }
+function getSlotsForSource(empType: string, sourceIdx: number): SlotDef[] {
+  if (empType === "self_employed" && sourceIdx > 0) return SELF_EMPLOYED_SECONDARY_SLOTS;
+  return getSlotsForType(empType);
+}
+
+function gridCols(empType: string, sourceIdx = 0): string {
+  if (empType === "self_employed" && sourceIdx > 0) return "grid-cols-2";
+  return empType === "w2" ? "grid-cols-3" : "grid-cols-2";
+}
+
+function readLS<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch { return null; }
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -91,11 +88,10 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function UploadAllNote({ text = "Upload all to proceed" }: { text?: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <rect x="2" y="6" width="10" height="7.5" rx="1" stroke="#727279" strokeWidth="1.2" />
-        <path d="M4.5 6V4.5C4.5 3.119 5.619 2 7 2C8.381 2 9.5 3.119 9.5 4.5V6" stroke="#727279" strokeWidth="1.2" strokeLinecap="round" />
-      </svg>
+    <div className="flex items-center gap-[6px]">
+      <span style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 500, fontSize: "13px", lineHeight: "18px", color: "#727279" }}>
+        *
+      </span>
       <p style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 400, fontSize: "13px", lineHeight: "18px", color: "#727279" }}>
         {text}
       </p>
@@ -135,6 +131,25 @@ function WhyAsked() {
   );
 }
 
+function SlotGrid({ slots, prefix, cols, files, onChange }: {
+  slots: SlotDef[];
+  prefix: string;
+  cols: string;
+  files: Record<string, File | null>;
+  onChange: (key: string, file: File | null) => void;
+}) {
+  return (
+    <div className={`grid ${cols} gap-4`}>
+      {slots.map((s) => {
+        const k = `${prefix}${s.key}`;
+        return (
+          <UploadCard key={k} label={s.label} sublabel={s.sublabel} file={files[k] ?? null} onFileChange={(f) => onChange(k, f)} />
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Main co-borrower form ────────────────────────────────────────────────────
 
 function CoBorrowerDocumentsForm() {
@@ -145,16 +160,35 @@ function CoBorrowerDocumentsForm() {
 
   const [empType, setEmpType] = useState("w2");
   const [isUSResident, setIsUSResident] = useState(true);
+  const [sourceCount, setSourceCount] = useState(1);
 
   useEffect(() => {
     const cb = readLS<{ employmentType?: string; countryOfResidence?: string }>("easyfund_co_borrower");
     setEmpType(cb?.employmentType || "w2");
     setIsUSResident(cb?.countryOfResidence === "us");
+
+    // co-borrower doesn't have separate income source count — default 1
+    setSourceCount(1);
   }, []);
 
   const [files, setFiles] = useState<Record<string, File | null>>({});
   function handleFile(key: string, file: File | null) {
     setFiles((prev) => ({ ...prev, [key]: file }));
+  }
+
+  // Bank statement multi-upload
+  const [bankSlots, setBankSlots] = useState<{ id: string; file: File | null }[]>([
+    { id: "bs_0", file: null },
+  ]);
+
+  function handleBankSlot(slotId: string, file: File | null) {
+    setBankSlots((prev) => {
+      const updated = prev.map((s) => (s.id === slotId ? { ...s, file } : s));
+      if (updated[updated.length - 1].file !== null) {
+        updated.push({ id: `bs_${Date.now()}`, file: null });
+      }
+      return updated;
+    });
   }
 
   const [pfsFile, setPfsFile] = useState<File | null>(null);
@@ -163,8 +197,7 @@ function CoBorrowerDocumentsForm() {
     alert("Application submitted successfully! Our team will be in touch shortly.");
   }
 
-  const slots = getSlotsForType(empType);
-  const cols = gridCols(empType);
+  const hasMultiple = sourceCount > 1 && isUSResident;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "#f9f9f9" }}>
@@ -175,8 +208,8 @@ function CoBorrowerDocumentsForm() {
         </p>
       </header>
 
-      <div className="flex flex-col items-center px-6 pt-12 pb-32 flex-1">
-        <div className="flex flex-col gap-10 w-full max-w-[564px]">
+      <div className="flex flex-col items-center px-6 pt-12 flex-1">
+        <div className="flex flex-col gap-10 w-full max-w-[564px] pb-16">
 
           {/* Title */}
           <div className="flex flex-col gap-2">
@@ -191,8 +224,14 @@ function CoBorrowerDocumentsForm() {
           {/* Bank Statement */}
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <UploadCard label="Bank Statement" file={files["bank_primary"] ?? null} onFileChange={(f) => handleFile("bank_primary", f)} />
-              <UploadCard label="Most Recent Bank Statement" sublabel="Optional" file={files["bank_recent"] ?? null} onFileChange={(f) => handleFile("bank_recent", f)} />
+              {bankSlots.map((slot) => (
+                <UploadCard
+                  key={slot.id}
+                  label="Most Recent Bank Statement"
+                  file={slot.file}
+                  onFileChange={(f) => handleBankSlot(slot.id, f)}
+                />
+              ))}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <UploadCard label="Purchase Agreement" sublabel="Optional" file={files["purchase_agreement"] ?? null} onFileChange={(f) => handleFile("purchase_agreement", f)} />
@@ -207,14 +246,17 @@ function CoBorrowerDocumentsForm() {
               <SectionTitle>Personal Financial Statement</SectionTitle>
               <UploadAllNote />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <UploadCard label="Upload Existing Statement" file={pfsFile} onFileChange={setPfsFile} />
-              <div className="flex flex-col rounded-[4px] border border-[#dcdcde] bg-white p-5 gap-3">
+            <div className="grid grid-cols-2 gap-4 items-stretch">
+              <UploadCard label="Upload Existing Statement" file={pfsFile} onFileChange={setPfsFile} fill />
+              <div
+                className="flex flex-col rounded-[4px] bg-white p-5 gap-3"
+                style={{ boxShadow: "0px 4px 32px 0px rgba(140,140,140,0.24)" }}
+              >
                 <p style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 600, fontSize: "14px", lineHeight: "20px", color: "#2f2f39" }}>Create New Statement</p>
                 <p style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 400, fontSize: "13px", lineHeight: "20px", color: "#727279" }}>
                   Don&apos;t have a statement ready? We&apos;ll guide you through our secure form to create a professional document.
                 </p>
-                <button type="button" className="flex items-center justify-center h-9 px-4 rounded-[4px] cursor-pointer" style={{ background: "#22222d" }} onClick={() => alert("Guided form coming soon.")}>
+                <button type="button" className="flex items-center justify-center h-9 px-4 rounded-[4px] cursor-pointer mt-auto" style={{ background: "#22222d" }} onClick={() => alert("Guided form coming soon.")}>
                   <span style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 500, fontSize: "13px", lineHeight: "18px", color: "#ffffff" }}>Start Guided Form</span>
                 </button>
               </div>
@@ -229,31 +271,68 @@ function CoBorrowerDocumentsForm() {
             </div>
 
             {!isUSResident ? (
-              <UploadCard tall label="Upload Income Documents" sublabel="Upload up to 20 files. Max 20MB per file. Supported formats: PDF, DOC, DOCX, JPG, PNG, HEIC, HEIF." file={files["poi_generic"] ?? null} onFileChange={(f) => handleFile("poi_generic", f)} />
+              <UploadCard
+                tall
+                label="Upload Income Documents"
+                sublabel="Upload up to 20 files. Max 20MB per file. Supported formats: PDF, DOC, DOCX, JPG, PNG, HEIC, HEIF."
+                file={files["poi_generic"] ?? null}
+                onFileChange={(f) => handleFile("poi_generic", f)}
+              />
+            ) : !hasMultiple ? (
+              <SlotGrid
+                slots={getSlotsForType(empType)}
+                prefix="poi_s0_"
+                cols={gridCols(empType, 0)}
+                files={files}
+                onChange={handleFile}
+              />
             ) : (
-              <div className={`grid ${cols} gap-4`}>
-                {slots.map((s) => (
-                  <UploadCard key={s.key} label={s.label} sublabel={s.sublabel} file={files[`poi_${s.key}`] ?? null} onFileChange={(f) => handleFile(`poi_${s.key}`, f)} />
-                ))}
+              <div className="flex flex-col gap-8">
+                {Array.from({ length: sourceCount }, (_, idx) => {
+                  const label =
+                    idx === 0 ? "First Income Source" :
+                    idx === 1 ? "Second Income Source" :
+                    idx === 2 ? "Third Income Source" :
+                    `Income Source ${idx + 1}`;
+                  return (
+                    <div key={idx} className="flex flex-col gap-4">
+                      <p style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 600, fontSize: "14px", lineHeight: "20px", color: "#3c3c46" }}>{label}</p>
+                      <SlotGrid
+                        slots={getSlotsForSource(empType, idx)}
+                        prefix={`poi_s${idx}_`}
+                        cols={gridCols(empType, idx)}
+                        files={files}
+                        onChange={handleFile}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
 
+          {/* CTA buttons — normal flow */}
+          <div className="flex items-center gap-4 pt-2">
+            <button
+              type="button"
+              className="flex items-center justify-center h-10 px-6 rounded-[4px] border border-[#dcdcde] bg-white hover:bg-[#f9f9f9] transition-colors cursor-pointer shrink-0"
+              style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 500, fontSize: "15px", lineHeight: "22px", color: "#2f2f39", whiteSpace: "nowrap" }}
+            >
+              Upload Later
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveFinish}
+              className="flex flex-1 items-center justify-center gap-2 h-10 rounded-[4px] cursor-pointer"
+              style={{ background: "#4b0ea3", border: "1px solid rgba(255,255,255,0.15)" }}
+            >
+              <span style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 600, fontSize: "15px", lineHeight: "22px", color: "#ffffff" }}>Save &amp; Finish</span>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.75 9H14.25M14.25 9L10.5 5.25M14.25 9L10.5 12.75" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </button>
+          </div>
+
         </div>
       </div>
-
-      {/* Sticky footer */}
-      <footer className="fixed bottom-0 left-0 right-0 flex items-center justify-center px-6 py-4" style={{ background: "#ffffff", borderTop: "1px solid #ebebed", zIndex: 40 }}>
-        <div className="flex items-center gap-4 w-full max-w-[564px]">
-          <button type="button" className="flex items-center justify-center h-10 px-6 rounded-[4px] border border-[#dcdcde] bg-white hover:bg-[#f9f9f9] transition-colors cursor-pointer" style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 500, fontSize: "15px", lineHeight: "22px", color: "#2f2f39", whiteSpace: "nowrap" }}>
-            Upload Later
-          </button>
-          <button type="button" onClick={handleSaveFinish} className="flex flex-1 items-center justify-center gap-2 h-10 rounded-[4px] cursor-pointer" style={{ background: "#4b0ea3", border: "1px solid rgba(255,255,255,0.15)" }}>
-            <span style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 600, fontSize: "15px", lineHeight: "22px", color: "#ffffff" }}>Save &amp; Finish</span>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3.75 9H14.25M14.25 9L10.5 5.25M14.25 9L10.5 12.75" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </button>
-        </div>
-      </footer>
     </div>
   );
 }
