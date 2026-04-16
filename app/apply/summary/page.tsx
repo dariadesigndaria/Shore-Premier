@@ -537,8 +537,7 @@ function SummaryForm() {
 
   function handleAgree() {
     setShowModal(false);
-    // Final submission — navigate to confirmation or handle API
-    router.push(`/?submitted=true`);
+    router.push(`/verify?type=${type}&done=${done}`);
   }
 
   // ── Derived display values ──
