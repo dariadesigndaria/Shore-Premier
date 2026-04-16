@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   FileIcon,
   MapPinIcon,
@@ -47,17 +48,20 @@ export default function Sidebar({ currentStep, completedSteps = [], onEditStep }
 
         {/* Brand */}
         <div className="flex items-center gap-[10px] mb-6 shrink-0">
-          <p style={{
-            fontFamily: "var(--font-red-hat-display), 'Red Hat Display', sans-serif",
-            fontWeight: 700,
-            fontSize: "28px",
-            lineHeight: "36.641px",
-            letterSpacing: "-1.12px",
-            color: "#ffffff",
-            whiteSpace: "nowrap",
-          }}>
-            EasyFund
-          </p>
+          <Link href="/" className="no-underline">
+            <p style={{
+              fontFamily: "var(--font-red-hat-display), 'Red Hat Display', sans-serif",
+              fontWeight: 700,
+              fontSize: "28px",
+              lineHeight: "36.641px",
+              letterSpacing: "-1.12px",
+              color: "#ffffff",
+              whiteSpace: "nowrap",
+              cursor: "pointer",
+            }}>
+              EasyFund
+            </p>
+          </Link>
         </div>
 
         {/* Stepper */}

@@ -181,7 +181,7 @@ function EnginesStepper({
   return (
     <div
       className="flex items-center rounded-[2px] border border-[#dcdcde] bg-white hover:border-[#a6a6ab] transition-colors"
-      style={{ width: 272, height: 40 }}
+      style={{ width: 272, height: 48 }}
     >
       {/* Label on the left */}
       <div className="flex-1 flex flex-col justify-center pl-3 min-w-0">
