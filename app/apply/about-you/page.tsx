@@ -61,6 +61,10 @@ interface FormData {
   idNumber: string;
   hasSSN: string;
   ssn: string;
+  isUSCitizen: string;
+  hasDualCitizenship: string;
+  dualCitizenshipCountry: string;
+  countryOfOrigin: string;
 }
 
 interface StoredFormData {
@@ -75,6 +79,10 @@ interface StoredFormData {
   idNumber: string;
   hasSSN: string;
   ssn: string;
+  isUSCitizen: string;
+  hasDualCitizenship: string;
+  dualCitizenshipCountry: string;
+  countryOfOrigin: string;
 }
 
 const STORAGE_KEY = "easyfund_about_you";
@@ -84,6 +92,7 @@ function loadFromStorage(): FormData {
     firstName: "", lastName: "", email: "", phone: "",
     dateOfBirth: null, country: "", idType: "", idState: "",
     idNumber: "", hasSSN: "", ssn: "",
+    isUSCitizen: "", hasDualCitizenship: "", dualCitizenshipCountry: "", countryOfOrigin: "",
   };
   if (typeof window === "undefined") return empty;
   try {
@@ -247,6 +256,56 @@ function AboutYouForm() {
             <h2 style={sectionHeadingStyle}>What is your Social Security Number?</h2>
             <Input label="SSN Number" required type="password" value={form.ssn} onChange={handleInput("ssn")} />
             <ExpandableQuestion answer="Your Social Security Number is used to verify your identity, check your credit history, and comply with federal lending regulations. For pre-qualification, this will only result in a soft credit pull, which does not affect your credit score." />
+          </div>
+        )}
+
+        {/* ── Section: US Citizenship ── */}
+        <div className="flex flex-col gap-6 w-full">
+          <h2 style={sectionHeadingStyle}>Are you a US citizen?</h2>
+          <SingleSelector
+            options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
+            value={form.isUSCitizen}
+            onChange={update("isUSCitizen")}
+          />
+        </div>
+
+        {/* ── US Citizen: dual citizenship question ── */}
+        {form.isUSCitizen === "yes" && (
+          <div className="flex flex-col gap-6 w-full">
+            <h2 style={sectionHeadingStyle}>Do you have citizenship with another country?</h2>
+            <SingleSelector
+              options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
+              value={form.hasDualCitizenship}
+              onChange={update("hasDualCitizenship")}
+            />
+          </div>
+        )}
+
+        {/* ── Dual citizenship country ── */}
+        {form.isUSCitizen === "yes" && form.hasDualCitizenship === "yes" && (
+          <div className="flex flex-col gap-5 w-full">
+            <h2 style={sectionHeadingStyle}>Which country?</h2>
+            <ComboSelect
+              label="Country"
+              required
+              options={COUNTRIES}
+              value={form.dualCitizenshipCountry}
+              onChange={update("dualCitizenshipCountry")}
+            />
+          </div>
+        )}
+
+        {/* ── Non-US citizen: country of origin ── */}
+        {form.isUSCitizen === "no" && (
+          <div className="flex flex-col gap-5 w-full">
+            <h2 style={sectionHeadingStyle}>What is your country of origin?</h2>
+            <ComboSelect
+              label="Country of Origin"
+              required
+              options={COUNTRIES}
+              value={form.countryOfOrigin}
+              onChange={update("countryOfOrigin")}
+            />
           </div>
         )}
 

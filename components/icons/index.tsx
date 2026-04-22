@@ -128,6 +128,22 @@ export function MotorYachtIcon({ size = 20, fill = "white" }: { size?: number; f
   );
 }
 
+export function PersonIcon({ size = 20, fill = "white" }: { size?: number; fill?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill={fill} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M10 10c2.071 0 3.75-1.679 3.75-3.75S12.071 2.5 10 2.5 6.25 4.179 6.25 6.25 7.929 10 10 10zm0 1.25c-2.503 0-7.5 1.256-7.5 3.75v1.25h15V15c0-2.494-4.997-3.75-7.5-3.75z" />
+    </svg>
+  );
+}
+
+export function FileDetailsIcon({ size = 20, fill = "white" }: { size?: number; fill?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill={fill} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M16.692 6.433l-4.375-4.375c-0.058-0.058-0.127-0.104-0.203-0.135s-0.157-0.047-0.239-0.047h-7.5c-0.332 0-0.649 0.132-0.884 0.366s-0.366 0.552-0.366 0.884v13.75c0 0.332 0.132 0.649 0.366 0.884s0.552 0.366 0.884 0.366h11.25c0.332 0 0.649-0.132 0.884-0.366s0.366-0.552 0.366-0.884v-10c0-0.082-0.016-0.163-0.047-0.239s-0.077-0.145-0.135-0.203zM6.25 8.125h4.375c0.166 0 0.325 0.066 0.442 0.183s0.183 0.276 0.183 0.442-0.066 0.325-0.183 0.442-0.276 0.183-0.442 0.183h-4.375c-0.166 0-0.325-0.066-0.442-0.183s-0.183-0.276-0.183-0.442 0.066-0.325 0.183-0.442 0.276-0.183 0.442-0.183zM13.75 13.125h-7.5c-0.166 0-0.325-0.066-0.442-0.183s-0.183-0.276-0.183-0.442 0.066-0.325 0.183-0.442c0.117-0.117 0.276-0.183 0.442-0.183h7.5c0.166 0 0.325 0.066 0.442 0.183s0.183 0.276 0.183 0.442-0.066 0.325-0.183 0.442-0.276 0.183-0.442 0.183zM11.875 6.875v-3.438l3.438 3.438h-3.438z" />
+    </svg>
+  );
+}
+
 export function SummaryIcon({ size = 20, fill = "white" }: { size?: number; fill?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill={fill} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

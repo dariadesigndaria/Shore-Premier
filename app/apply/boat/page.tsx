@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
+import DatePicker from "@/components/form/DatePicker";
 import CurrencyInput from "@/components/form/CurrencyInput";
 import SingleSelector from "@/components/form/SingleSelector";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
@@ -20,6 +21,8 @@ interface BoatState {
   // Refinancing only
   loanAmount: string;
   loanAmountCurrency: string;
+  currentLender: string;
+  vesselPurchaseDate: string | null; // ISO string
   // Vessel info
   make: string;
   model: string;
@@ -28,8 +31,11 @@ interface BoatState {
   engineType: string;
   horsepowerPerEngine: string;
   numberOfEngines: number;
+  mooringLocation: string;
   // LLC
   llcTitled: string; // "yes" | "no" | ""
+  // Vessel use
+  vesselUse: string; // "personal_use" | "charter" | "limited_charter" | ""
 }
 
 const STORAGE_KEY = "easyfund_boat";
@@ -43,6 +49,8 @@ function loadFromStorage(): BoatState {
     downPaymentCurrency: "USD",
     loanAmount: "",
     loanAmountCurrency: "USD",
+    currentLender: "",
+    vesselPurchaseDate: null,
     make: "",
     model: "",
     year: "",
@@ -50,7 +58,9 @@ function loadFromStorage(): BoatState {
     engineType: "",
     horsepowerPerEngine: "",
     numberOfEngines: 1,
+    mooringLocation: "",
     llcTitled: "",
+    vesselUse: "",
   };
   if (typeof window === "undefined") return empty;
   try {
@@ -138,6 +148,14 @@ const YEAR_OPTIONS = Array.from({ length: 60 }, (_, i) => {
   const y = String(currentYear - i);
   return { value: y, label: y };
 });
+
+const MOORING_LOCATION_OPTIONS = [
+  { value: "united_states", label: "United States" },
+  { value: "bvi", label: "BVI" },
+  { value: "cayman_islands", label: "Cayman Islands" },
+  { value: "marshall_islands", label: "Marshall Islands" },
+  { value: "other", label: "Other" },
+];
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -381,8 +399,19 @@ function BoatForm() {
     )
       return false;
 
+    // Refinancing extra fields
+    if (isRefinancing) {
+      if (!state.currentLender.trim() || !state.vesselPurchaseDate) return false;
+    }
+
+    // Mooring location required
+    if (!state.mooringLocation) return false;
+
     // LLC
     if (!state.llcTitled) return false;
+
+    // Vessel use
+    if (!state.vesselUse) return false;
 
     return true;
   }
@@ -391,7 +420,7 @@ function BoatForm() {
     if (!canProceed()) return;
     const existingDone = done ? done.split(",").filter(Boolean) : [];
     if (!existingDone.includes("boat")) existingDone.push("boat");
-    router.push(`/apply/summary?type=${type}&done=${existingDone.join(",")}`);
+    router.push(`/apply/ownership?type=${type}&done=${existingDone.join(",")}`);
   }
 
   const llcQuestion = isPurchasing
@@ -479,6 +508,26 @@ function BoatForm() {
           </div>
         )}
 
+        {/* ── Refinancing: Current Lender + Date of Vessel Purchase ── */}
+        {isRefinancing && (
+          <div className="flex flex-col gap-5 w-full">
+            <div className="flex gap-5 w-full">
+              <Input
+                label="Current Lender"
+                required
+                value={state.currentLender}
+                onChange={(e) => update("currentLender", e.target.value)}
+              />
+              <DatePicker
+                label="Date of the Vessel purchase"
+                required
+                value={state.vesselPurchaseDate ? new Date(state.vesselPurchaseDate) : null}
+                onChange={(d) => update("vesselPurchaseDate", d ? d.toISOString() : null)}
+              />
+            </div>
+          </div>
+        )}
+
         {/* ── Vessel Information ── */}
         <div className="flex flex-col gap-5 w-full">
           <h2 style={sectionHeadingStyle}>Tell Us About Your Vessel</h2>
@@ -536,14 +585,39 @@ function BoatForm() {
             />
           </div>
 
-          {/* Number of Engines stepper (standalone row, left-aligned) */}
-          <div className="flex items-center w-full">
+          {/* Number of Engines + Mooring Location */}
+          <div className="flex gap-5 w-full items-end">
             <EnginesStepper
               value={state.numberOfEngines}
               onChange={(v) => update("numberOfEngines", v)}
             />
+            <div className="flex-1">
+              <Select
+                label="Mooring location"
+                required
+                options={MOORING_LOCATION_OPTIONS}
+                value={state.mooringLocation}
+                onChange={(v) => update("mooringLocation", v)}
+              />
+            </div>
           </div>
         </div>
+
+        {/* ── Vessel Use ── */}
+        {state.loanType && (
+          <div className="flex flex-col gap-5 w-full">
+            <h2 style={sectionHeadingStyle}>Will This vessel be used for Personal Use, Charter or Limited Charter?</h2>
+            <SingleSelector
+              options={[
+                { value: "personal_use", label: "Personal Use" },
+                { value: "charter", label: "Charter" },
+                { value: "limited_charter", label: "Limited Charter" },
+              ]}
+              value={state.vesselUse}
+              onChange={(v) => update("vesselUse", v)}
+            />
+          </div>
+        )}
 
         {/* ── LLC Question ── */}
         {state.loanType && (

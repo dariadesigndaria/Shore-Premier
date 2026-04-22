@@ -36,6 +36,10 @@ interface AboutYouStored {
   idNumber: string;
   hasSSN: string;
   ssn: string;
+  isUSCitizen: string;
+  hasDualCitizenship: string;
+  dualCitizenshipCountry: string;
+  countryOfOrigin: string;
 }
 
 // Address
@@ -149,6 +153,8 @@ interface BoatStored {
   downPaymentCurrency: string;
   loanAmount: string;
   loanAmountCurrency: string;
+  currentLender: string;
+  vesselPurchaseDate: string | null;
   make: string;
   model: string;
   year: string;
@@ -156,7 +162,36 @@ interface BoatStored {
   engineType: string;
   horsepowerPerEngine: string;
   numberOfEngines: number;
+  mooringLocation: string;
   llcTitled: string;
+  vesselUse: string;
+}
+
+// Ownership
+interface OwnershipStored {
+  hasPriorOwnership: string;
+  boatMake: string;
+  boatModel: string;
+  boatYear: string;
+  yearsOwned: string;
+  wasFinanced: string;
+}
+
+// Declarations
+interface DeclarationsStored {
+  isPEP: string;
+  pepCountry: string;
+  isRelatedToPEP: string;
+  pepRelationshipType: string;
+  pepRelationshipDetail: string;
+  pepFirstName: string;
+  pepLastName: string;
+  pepCountryRelated: string;
+  isEmbassyEmployee: string;
+  embassyHomeCountry: string;
+  isFrequentTraveler: string;
+  travelsOutsideUS: string;
+  travelCountries: string[];
 }
 
 // ─── Storage loaders ─────────────────────────────────────────────────────────
@@ -202,6 +237,25 @@ const LOAN_TYPE_LABELS: Record<string, string> = {
   refinancing: "Refinancing",
 };
 
+const MOORING_LOCATION_LABELS: Record<string, string> = {
+  united_states: "United States",
+  bvi: "BVI",
+  cayman_islands: "Cayman Islands",
+  marshall_islands: "Marshall Islands",
+  other: "Other",
+};
+
+const VESSEL_USE_LABELS: Record<string, string> = {
+  personal_use: "Personal Use",
+  charter: "Charter",
+  limited_charter: "Limited Charter",
+};
+
+const PEP_RELATIONSHIP_LABELS: Record<string, string> = {
+  immediate_family: "Immediate family member",
+  close_associate: "Close associate",
+};
+
 const COUNTRY_LABELS: Record<string, string> = {
   us: "United States",
   ca: "Canada",
@@ -209,6 +263,19 @@ const COUNTRY_LABELS: Record<string, string> = {
   au: "Australia",
   de: "Germany",
   fr: "France",
+  mx: "Mexico",
+  br: "Brazil",
+  cn: "China",
+  jp: "Japan",
+  in: "India",
+  ru: "Russia",
+  it: "Italy",
+  es: "Spain",
+  nl: "Netherlands",
+  ch: "Switzerland",
+  ae: "United Arab Emirates",
+  sg: "Singapore",
+  hk: "Hong Kong",
   other: "Other",
 };
 
@@ -516,6 +583,8 @@ function SummaryForm() {
   const [income, setIncome] = useState<IncomeStored | null>(null);
   const [coBorrower, setCoBorrower] = useState<CoBorrowerStored | null>(null);
   const [boat, setBoat] = useState<BoatStored | null>(null);
+  const [ownership, setOwnership] = useState<OwnershipStored | null>(null);
+  const [declarations, setDeclarations] = useState<DeclarationsStored | null>(null);
 
   useEffect(() => {
     setAboutYou(load<AboutYouStored>("easyfund_about_you"));
@@ -525,6 +594,8 @@ function SummaryForm() {
     setIncome(load<IncomeStored>("easyfund_income"));
     setCoBorrower(load<CoBorrowerStored>("easyfund_co_borrower"));
     setBoat(load<BoatStored>("easyfund_boat"));
+    setOwnership(load<OwnershipStored>("easyfund_ownership"));
+    setDeclarations(load<DeclarationsStored>("easyfund_declarations"));
   }, []);
 
   function handleEditStep(stepId: string) {
@@ -681,6 +752,30 @@ function SummaryForm() {
                 />
                 {aboutYou.hasSSN === "yes" && (
                   <SummaryRow label="What is your Social Security Number?" value={aboutYou.ssn} />
+                )}
+                {aboutYou.isUSCitizen && (
+                  <SummaryRow
+                    label="Are you a US citizen?"
+                    value={aboutYou.isUSCitizen === "yes" ? "Yes" : "No"}
+                  />
+                )}
+                {aboutYou.isUSCitizen === "yes" && aboutYou.hasDualCitizenship && (
+                  <SummaryRow
+                    label="Do you have citizenship with another country?"
+                    value={aboutYou.hasDualCitizenship === "yes" ? "Yes" : "No"}
+                  />
+                )}
+                {aboutYou.isUSCitizen === "yes" && aboutYou.hasDualCitizenship === "yes" && aboutYou.dualCitizenshipCountry && (
+                  <SummaryRow
+                    label="Other citizenship country"
+                    value={COUNTRY_LABELS[aboutYou.dualCitizenshipCountry] ?? aboutYou.dualCitizenshipCountry}
+                  />
+                )}
+                {aboutYou.isUSCitizen === "no" && aboutYou.countryOfOrigin && (
+                  <SummaryRow
+                    label="Country of origin"
+                    value={COUNTRY_LABELS[aboutYou.countryOfOrigin] ?? aboutYou.countryOfOrigin}
+                  />
                 )}
               </div>
             </div>
@@ -1019,10 +1114,18 @@ function SummaryForm() {
                   </>
                 )}
                 {boat.loanType === "refinancing" && (
-                  <SummaryRow
-                    label="Loan Amount"
-                    value={fmtCurrency(boat.loanAmount, boat.loanAmountCurrency)}
-                  />
+                  <>
+                    <SummaryRow
+                      label="Loan Amount"
+                      value={fmtCurrency(boat.loanAmount, boat.loanAmountCurrency)}
+                    />
+                    {boat.currentLender && (
+                      <SummaryRow label="Current Lender" value={boat.currentLender} />
+                    )}
+                    {boat.vesselPurchaseDate && (
+                      <SummaryRow label="Date of the Vessel purchase" value={fmtDate(boat.vesselPurchaseDate)} />
+                    )}
+                  </>
                 )}
                 <SummaryRow label="Make" value={boat.make} />
                 <SummaryRow label="Model" value={boat.model} />
@@ -1031,6 +1134,18 @@ function SummaryForm() {
                 <SummaryRow label="Engine Type" value={boat.engineType} />
                 <SummaryRow label="Horsepower per Engine" value={boat.horsepowerPerEngine} />
                 <SummaryRow label="Number of Engines" value={String(boat.numberOfEngines)} />
+                {boat.mooringLocation && (
+                  <SummaryRow
+                    label="Mooring location"
+                    value={MOORING_LOCATION_LABELS[boat.mooringLocation] ?? boat.mooringLocation}
+                  />
+                )}
+                {boat.vesselUse && (
+                  <SummaryRow
+                    label="Vessel use"
+                    value={VESSEL_USE_LABELS[boat.vesselUse] ?? boat.vesselUse}
+                  />
+                )}
                 <SummaryRow
                   label={
                     boat.loanType === "purchasing"
@@ -1039,6 +1154,118 @@ function SummaryForm() {
                   }
                   value={boat.llcTitled === "yes" ? "Yes" : boat.llcTitled === "no" ? "No" : ""}
                 />
+              </div>
+            </div>
+          )}
+
+          {/* ── Ownership ── */}
+          {ownership?.hasPriorOwnership && (
+            <div className="flex flex-col gap-5 w-full">
+              <SectionHeader title="Ownership" stepId="ownership" onEdit={handleEditStep} />
+              <div className="flex flex-col gap-4">
+                <SummaryRow
+                  label="Do you have prior boat ownership experience?"
+                  value={ownership.hasPriorOwnership === "yes" ? "Yes" : "No"}
+                />
+                {ownership.hasPriorOwnership === "yes" && (
+                  <>
+                    {ownership.boatMake && <SummaryRow label="Boat Make" value={ownership.boatMake} />}
+                    {ownership.boatModel && <SummaryRow label="Boat Model" value={ownership.boatModel} />}
+                    {ownership.boatYear && <SummaryRow label="Year" value={ownership.boatYear} />}
+                    {ownership.yearsOwned && <SummaryRow label="How long did you own this vessel?" value={ownership.yearsOwned} />}
+                    {ownership.wasFinanced && (
+                      <SummaryRow
+                        label="Was this vessel financed?"
+                        value={ownership.wasFinanced === "yes" ? "Yes" : "No"}
+                      />
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── Declarations ── */}
+          {declarations?.isPEP && (
+            <div className="flex flex-col gap-5 w-full">
+              <SectionHeader title="Declarations" stepId="declarations" onEdit={handleEditStep} />
+              <div className="flex flex-col gap-4">
+                <SummaryRow
+                  label="Are you currently, or have you ever been, a politically exposed person (PEP)?"
+                  value={declarations.isPEP === "yes" ? "Yes" : "No"}
+                />
+                {declarations.isPEP === "yes" && declarations.pepCountry && (
+                  <SummaryRow
+                    label="Country where you are/were a PEP"
+                    value={COUNTRY_LABELS[declarations.pepCountry] ?? declarations.pepCountry}
+                  />
+                )}
+                {declarations.isRelatedToPEP && (
+                  <SummaryRow
+                    label="Are you an immediate family member or close associate of someone who is/was a PEP?"
+                    value={declarations.isRelatedToPEP === "yes" ? "Yes" : "No"}
+                  />
+                )}
+                {declarations.isRelatedToPEP === "yes" && (
+                  <>
+                    {declarations.pepRelationshipType && (
+                      <SummaryRow
+                        label="Relationship type"
+                        value={PEP_RELATIONSHIP_LABELS[declarations.pepRelationshipType] ?? declarations.pepRelationshipType}
+                      />
+                    )}
+                    {declarations.pepRelationshipDetail && (
+                      <SummaryRow
+                        label={declarations.pepRelationshipType === "close_associate" ? "Nature of your association" : "Your relationship"}
+                        value={declarations.pepRelationshipDetail}
+                      />
+                    )}
+                    {(declarations.pepFirstName || declarations.pepLastName) && (
+                      <SummaryRow
+                        label="PEP Full Name"
+                        value={[declarations.pepFirstName, declarations.pepLastName].filter(Boolean).join(" ")}
+                      />
+                    )}
+                    {declarations.pepCountryRelated && (
+                      <SummaryRow
+                        label="Country where person is/was a PEP"
+                        value={COUNTRY_LABELS[declarations.pepCountryRelated] ?? declarations.pepCountryRelated}
+                      />
+                    )}
+                  </>
+                )}
+                {declarations.isEmbassyEmployee && (
+                  <SummaryRow
+                    label="Are you an employee of an embassy, foreign consulate, or foreign mission?"
+                    value={declarations.isEmbassyEmployee === "yes" ? "Yes" : "No"}
+                  />
+                )}
+                {declarations.isEmbassyEmployee === "yes" && declarations.embassyHomeCountry && (
+                  <SummaryRow
+                    label="Home country of embassy/consulate/mission"
+                    value={COUNTRY_LABELS[declarations.embassyHomeCountry] ?? declarations.embassyHomeCountry}
+                  />
+                )}
+                {declarations.isFrequentTraveler && (
+                  <SummaryRow
+                    label="Are you a frequent traveler?"
+                    value={declarations.isFrequentTraveler === "yes" ? "Yes" : "No"}
+                  />
+                )}
+                {declarations.travelsOutsideUS && (
+                  <SummaryRow
+                    label="Do you travel outside the US?"
+                    value={declarations.travelsOutsideUS === "yes" ? "Yes" : "No"}
+                  />
+                )}
+                {declarations.travelsOutsideUS === "yes" && declarations.travelCountries?.length > 0 && (
+                  <SummaryRow
+                    label="Countries you travel to"
+                    value={declarations.travelCountries
+                      .map((c) => COUNTRY_LABELS[c] ?? c)
+                      .join(", ")}
+                  />
+                )}
               </div>
             </div>
           )}

@@ -30,6 +30,14 @@ const SELF_EMPLOYED_SLOTS: SlotDef[] = [
   { key: "pnl", label: "Signed and Dated Year to Date Profit & Loss", sublabel: "Optional" },
 ];
 
+// Extra slots shown for self-employed US residents
+const SELF_EMPLOYED_US_EXTRA_SLOTS: SlotDef[] = [
+  { key: "w2_2024", label: "2024 W-2" },
+  { key: "w2_2025", label: "2025 W-2" },
+  { key: "paystub_1", label: "Most Recent Pay Stub" },
+  { key: "paystub_2", label: "2nd Most Recent Pay Stub" },
+];
+
 // Slots for secondary self-employed income source
 const SELF_EMPLOYED_SECONDARY_SLOTS: SlotDef[] = [
   { key: "btr_2023", label: "2023 Business Tax Returns (All Schedules)" },
@@ -456,13 +464,25 @@ function DocumentsForm() {
 
             {/* US + Single source */}
             {isUSResident && !hasMultiple && (
-              <SlotGrid
-                slots={getSlotsForType(empType)}
-                prefix="poi_s0_"
-                cols={gridCols(empType, 0)}
-                files={files}
-                onChange={handleFile}
-              />
+              <div className="flex flex-col gap-4">
+                <SlotGrid
+                  slots={getSlotsForType(empType)}
+                  prefix="poi_s0_"
+                  cols={gridCols(empType, 0)}
+                  files={files}
+                  onChange={handleFile}
+                />
+                {/* Extra W2/paystub slots for self-employed US residents */}
+                {empType === "self_employed" && (
+                  <SlotGrid
+                    slots={SELF_EMPLOYED_US_EXTRA_SLOTS}
+                    prefix="poi_s0_extra_"
+                    cols="grid-cols-2"
+                    files={files}
+                    onChange={handleFile}
+                  />
+                )}
+              </div>
             )}
 
             {/* US + Multiple sources */}
@@ -488,6 +508,16 @@ function DocumentsForm() {
                         files={files}
                         onChange={handleFile}
                       />
+                      {/* Extra W2/paystub slots for self-employed US residents per source */}
+                      {empType === "self_employed" && idx === 0 && (
+                        <SlotGrid
+                          slots={SELF_EMPLOYED_US_EXTRA_SLOTS}
+                          prefix={`poi_s${idx}_extra_`}
+                          cols="grid-cols-2"
+                          files={files}
+                          onChange={handleFile}
+                        />
+                      )}
                     </div>
                   );
                 })}

@@ -7,6 +7,8 @@ import {
   CashIcon,
   UsersIcon,
   MotorYachtIcon,
+  PersonIcon,
+  FileDetailsIcon,
   SummaryIcon,
   CheckmarkIcon,
   PenIcon,
@@ -22,6 +24,8 @@ const steps = [
   { id: "income", label: "Additional Income", icon: (size: number, fill: string) => <CashIcon size={size} fill={fill} /> },
   { id: "co-borrower", label: "Co-Borrower Info", icon: (size: number, fill: string) => <UsersIcon size={size} fill={fill} /> },
   { id: "boat", label: "Boat Information", icon: (size: number, fill: string) => <MotorYachtIcon size={size} fill={fill} /> },
+  { id: "ownership", label: "Ownership", icon: (size: number, fill: string) => <PersonIcon size={size} fill={fill} /> },
+  { id: "declarations", label: "Declarations", icon: (size: number, fill: string) => <FileDetailsIcon size={size} fill={fill} /> },
   { id: "summary", label: "Summary", icon: (size: number, fill: string) => <SummaryIcon size={size} fill={fill} /> },
 ];
 
