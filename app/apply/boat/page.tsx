@@ -304,14 +304,13 @@ function LLCTooltip() {
         </span>
       </div>
 
-      {/* Tooltip bubble */}
+      {/* Tooltip bubble — right-anchored so it doesn't overlap the heading */}
       {visible && (
         <div
           className="absolute z-50 pointer-events-none"
           style={{
             bottom: "calc(100% + 8px)",
-            left: "50%",
-            transform: "translateX(-50%)",
+            right: 0,
             width: 280,
             padding: "10px 12px",
             background: "#22222d",
