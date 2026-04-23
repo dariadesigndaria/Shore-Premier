@@ -407,12 +407,12 @@ function EmploymentForm() {
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="This helps us match you with better rates and loan options" />
-
         {/* ── Employment Type ── */}
         <div className="flex flex-col gap-5 w-full">
-          <h1 style={mainTitleStyle}>What is your employment status?</h1>
+          <div className="flex flex-col gap-2">
+            <StepHint text="This helps us match you with better rates and loan options" />
+            <h1 style={mainTitleStyle}>What is your employment status?</h1>
+          </div>
           <EmploymentTypeGrid
             value={state.employmentType}
             onChange={(v) => update("employmentType", v)}

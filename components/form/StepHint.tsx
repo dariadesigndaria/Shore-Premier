@@ -6,36 +6,40 @@ interface StepHintProps {
 
 export default function StepHint({ text }: StepHintProps) {
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-center gap-3">
       {/* Megaphone outline icon */}
       <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ flexShrink: 0, marginTop: 1 }}
+        style={{ flexShrink: 0 }}
+        aria-hidden="true"
       >
         <path
-          d="M16.667 3.333v10l-6.667-2.5H5A1.667 1.667 0 0 1 3.333 9.167V7.5A1.667 1.667 0 0 1 5 5.833h5L16.667 3.333Z"
+          d="M2.667 5.667H5L10.667 3v10L5 10.333H2.667A1 1 0 0 1 1.667 9.333V6.667A1 1 0 0 1 2.667 5.667Z"
           stroke="#4b0ea3"
-          strokeWidth="1.5"
-          strokeLinecap="round"
+          strokeWidth="1.3"
           strokeLinejoin="round"
         />
         <path
-          d="M6.667 12.5v3.333"
+          d="M5 10.333V13"
           stroke="#4b0ea3"
-          strokeWidth="1.5"
+          strokeWidth="1.3"
           strokeLinecap="round"
-          strokeLinejoin="round"
         />
         <path
-          d="M19.167 5.833A3.333 3.333 0 0 1 19.167 10.833"
+          d="M12 6.5a2 2 0 0 1 0 3"
           stroke="#4b0ea3"
-          strokeWidth="1.5"
+          strokeWidth="1.3"
           strokeLinecap="round"
-          strokeLinejoin="round"
+        />
+        <path
+          d="M13.5 5a3.5 3.5 0 0 1 0 6"
+          stroke="#4b0ea3"
+          strokeWidth="1.3"
+          strokeLinecap="round"
         />
       </svg>
       <span

@@ -157,11 +157,9 @@ function OwnershipForm() {
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="You're almost there — just a bit more about your boating experience" />
-
         {/* Title */}
-        <div className="flex flex-col gap-1 w-full">
+        <div className="flex flex-col gap-2 w-full">
+          <StepHint text="You're almost there — just a bit more about your boating experience" />
           <h1 style={mainTitleStyle}>Ownership</h1>
         </div>
 

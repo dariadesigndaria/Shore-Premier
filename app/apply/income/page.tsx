@@ -622,15 +622,15 @@ function IncomeForm() {
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="Adding more income sources can help you qualify for better offers" />
-
         {/* ── Title ── */}
-        <div className="flex flex-col gap-1 w-full">
-          <h1 style={mainTitleStyle}>Do you have any other sources of income?</h1>
-          <p style={subtitleStyle}>
-            Please only include this income source if you have a 2 year history of receiving this income
-          </p>
+        <div className="flex flex-col gap-2 w-full">
+          <StepHint text="Adding more income sources can help you qualify for better offers" />
+          <div className="flex flex-col gap-1 w-full">
+            <h1 style={mainTitleStyle}>Do you have any other sources of income?</h1>
+            <p style={subtitleStyle}>
+              Please only include this income source if you have a 2 year history of receiving this income
+            </p>
+          </div>
         </div>
 
         {/* ── Yes / No ── */}

@@ -205,12 +205,12 @@ function AboutYouForm() {
       {/* Form block */}
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="This helps us match you with the best financing options" />
-
         {/* ── Section: Personal Details ── */}
         <div className="flex flex-col gap-5 w-full">
-          <h1 style={mainTitleStyle}>What are your personal details</h1>
+          <div className="flex flex-col gap-2">
+            <StepHint text="This helps us match you with the best financing options" />
+            <h1 style={mainTitleStyle}>What are your personal details</h1>
+          </div>
 
           <div className="flex gap-5 w-full">
             <Input label="First Name" required value={form.firstName} onChange={handleInput("firstName")} />
@@ -240,34 +240,6 @@ function AboutYouForm() {
           <ComboSelect label="Country of Residence" required options={COUNTRIES} value={form.country} onChange={update("country")} />
           <ExpandableQuestion answer="We ask for your country of residence to ensure we show financing options and terms that apply to your location and comply with local regulations." />
         </div>
-
-        {/* ── Section: Government-issued ID ── */}
-        <div className="flex flex-col gap-6 w-full">
-          <h2 style={sectionHeadingStyle}>What is your government-issued ID number?</h2>
-          <div className="flex flex-col gap-5 w-full">
-            <div className="flex gap-5 w-full">
-              <Select label="ID Type" required options={ID_TYPES} value={form.idType} onChange={update("idType")} />
-              <ComboSelect label="State of Issue" required options={US_STATES} value={form.idState} onChange={update("idState")} />
-            </div>
-            <Input label="ID Number" required value={form.idNumber} onChange={handleInput("idNumber")} />
-          </div>
-          <ExpandableQuestion answer="Lenders require your government-issued ID number to verify your identity, prevent fraud, and comply with federal regulations. This helps ensure your loan application is processed securely and accurately." />
-        </div>
-
-        {/* ── Section: SSN ── */}
-        <div className="flex flex-col gap-6 w-full">
-          <h2 style={sectionHeadingStyle}>Do you have a Social Security Number?</h2>
-          <SingleSelector options={SSN_OPTIONS} value={form.hasSSN} onChange={update("hasSSN")} />
-        </div>
-
-        {/* ── Section: SSN Number (conditional) ── */}
-        {form.hasSSN === "yes" && (
-          <div className="flex flex-col gap-6 w-full">
-            <h2 style={sectionHeadingStyle}>What is your Social Security Number?</h2>
-            <Input label="SSN Number" required type="password" value={form.ssn} onChange={handleInput("ssn")} />
-            <ExpandableQuestion answer="Your Social Security Number is used to verify your identity, check your credit history, and comply with federal lending regulations. For pre-qualification, this will only result in a soft credit pull, which does not affect your credit score." />
-          </div>
-        )}
 
         {/* ── Section: US Citizenship ── */}
         <div className="flex flex-col gap-6 w-full">
@@ -358,6 +330,34 @@ function AboutYouForm() {
               </div>
             )}
           </>
+        )}
+
+        {/* ── Section: Government-issued ID ── */}
+        <div className="flex flex-col gap-6 w-full">
+          <h2 style={sectionHeadingStyle}>What is your government-issued ID number?</h2>
+          <div className="flex flex-col gap-5 w-full">
+            <div className="flex gap-5 w-full">
+              <Select label="ID Type" required options={ID_TYPES} value={form.idType} onChange={update("idType")} />
+              <ComboSelect label="State of Issue" required options={US_STATES} value={form.idState} onChange={update("idState")} />
+            </div>
+            <Input label="ID Number" required value={form.idNumber} onChange={handleInput("idNumber")} />
+          </div>
+          <ExpandableQuestion answer="Lenders require your government-issued ID number to verify your identity, prevent fraud, and comply with federal regulations. This helps ensure your loan application is processed securely and accurately." />
+        </div>
+
+        {/* ── Section: SSN ── */}
+        <div className="flex flex-col gap-6 w-full">
+          <h2 style={sectionHeadingStyle}>Do you have a Social Security Number?</h2>
+          <SingleSelector options={SSN_OPTIONS} value={form.hasSSN} onChange={update("hasSSN")} />
+        </div>
+
+        {/* ── Section: SSN Number (conditional) ── */}
+        {form.hasSSN === "yes" && (
+          <div className="flex flex-col gap-6 w-full">
+            <h2 style={sectionHeadingStyle}>What is your Social Security Number?</h2>
+            <Input label="SSN Number" required type="password" value={form.ssn} onChange={handleInput("ssn")} />
+            <ExpandableQuestion answer="Your Social Security Number is used to verify your identity, check your credit history, and comply with federal lending regulations. For pre-qualification, this will only result in a soft credit pull, which does not affect your credit score." />
+          </div>
         )}
 
         {/* ── Navigation: Save & Next ── */}

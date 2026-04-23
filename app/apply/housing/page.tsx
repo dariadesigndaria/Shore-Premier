@@ -117,12 +117,12 @@ function HousingForm() {
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="Clear answers here help avoid follow-up questions later." />
-
         {/* ── Housing type ── */}
         <div className="flex flex-col gap-5 w-full">
-          <h1 style={mainTitleStyle}>What is your housing situation?</h1>
+          <div className="flex flex-col gap-2">
+            <StepHint text="Clear answers here help avoid follow-up questions later." />
+            <h1 style={mainTitleStyle}>What is your housing situation?</h1>
+          </div>
           <SingleSelector
             options={HOUSING_TYPES}
             value={state.housingType}

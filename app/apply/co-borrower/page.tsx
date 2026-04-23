@@ -537,12 +537,12 @@ function CoBorrowerForm() {
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="You're halfway there — great progress" />
-
         {/* ── Personal Details ── */}
         <div className="flex flex-col gap-5 w-full">
-          <h1 style={mainTitleStyle}>Co-Borrower personal details</h1>
+          <div className="flex flex-col gap-2">
+            <StepHint text="You're halfway there — great progress" />
+            <h1 style={mainTitleStyle}>Co-Borrower personal details</h1>
+          </div>
 
           <div className="flex gap-5 w-full">
             <Input label="First Name" required value={state.firstName} onChange={(e) => update("firstName", e.target.value)} />

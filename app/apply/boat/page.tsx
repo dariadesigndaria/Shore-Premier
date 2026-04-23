@@ -448,15 +448,15 @@ function BoatForm() {
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="Now we'll use your profile to match you with the right financing for your vessel" />
-
         {/* ── Title ── */}
-        <div className="flex flex-col gap-1 w-full">
-          <h1 style={mainTitleStyle}>Boat Information</h1>
-          <p style={subtitleStyle}>
-            Tell us about the vessel and your financing needs
-          </p>
+        <div className="flex flex-col gap-2 w-full">
+          <StepHint text="Now we'll use your profile to match you with the right financing for your vessel" />
+          <div className="flex flex-col gap-1 w-full">
+            <h1 style={mainTitleStyle}>Boat Information</h1>
+            <p style={subtitleStyle}>
+              Tell us about the vessel and your financing needs
+            </p>
+          </div>
         </div>
 
         {/* ── Purchasing / Refinancing selector ── */}

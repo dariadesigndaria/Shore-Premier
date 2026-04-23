@@ -247,12 +247,12 @@ function AddressForm() {
       {/* Form block */}
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="This helps us verify your details and move your application forward" />
-
         {/* ── Section: Current Address ── */}
         <div className="flex flex-col gap-5 w-full">
-          <h1 style={mainTitleStyle}>What is your Address?</h1>
+          <div className="flex flex-col gap-2">
+            <StepHint text="This helps us verify your details and move your application forward" />
+            <h1 style={mainTitleStyle}>What is your Address?</h1>
+          </div>
 
           <div className="flex gap-5 w-full">
             <ComboSelect label="Country" required options={COUNTRIES} value={primary.country}

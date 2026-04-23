@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import YachtwayLogo from "@/components/YachtwayLogo";
+import { PersonIcon, UsersIcon } from "@/components/icons";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
@@ -43,22 +44,10 @@ export default function TypeOfApplicationPage() {
               {/* Individually */}
               <Link
                 href="/apply/about-you?type=individual"
-                className="flex-1 h-[304px] rounded-[4px] overflow-hidden relative border-2 border-[rgba(34,34,45,0.04)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(34,34,45,0.12)] transition-colors block"
+                className="flex-1 h-[200px] rounded-[4px] flex flex-col items-center justify-center gap-4 border-2 border-[rgba(34,34,45,0.06)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(75,14,163,0.3)] hover:bg-[rgba(75,14,163,0.03)] transition-colors"
               >
-                <div className="absolute top-0 left-0 right-0 h-[224px]">
-                  <img
-                    src={`${BASE}/images/card-individually-photo.jpg`}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  <img
-                    src={`${BASE}/images/card-individually-overlay.png`}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
+                <PersonIcon size={48} fill="#9ca3af" />
                 <p
-                  className="absolute left-[26px] bottom-[14px]"
                   style={{
                     fontFamily: "var(--font-red-hat-display), 'Red Hat Display', sans-serif",
                     fontWeight: 500,
@@ -75,22 +64,10 @@ export default function TypeOfApplicationPage() {
               {/* With a Co-Borrower */}
               <Link
                 href="/apply/about-you?type=co-borrower"
-                className="flex-1 h-[304px] rounded-[4px] overflow-hidden relative border-2 border-[rgba(34,34,45,0.04)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(34,34,45,0.12)] transition-colors block"
+                className="flex-1 h-[200px] rounded-[4px] flex flex-col items-center justify-center gap-4 border-2 border-[rgba(34,34,45,0.06)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(75,14,163,0.3)] hover:bg-[rgba(75,14,163,0.03)] transition-colors"
               >
-                <div className="absolute top-0 left-0 right-0 h-[224px]">
-                  <img
-                    src={`${BASE}/images/card-coborrower-photo.jpg`}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  <img
-                    src={`${BASE}/images/card-coborrower-overlay.png`}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
+                <UsersIcon size={48} fill="#9ca3af" />
                 <p
-                  className="absolute bottom-[14px] left-[50%] translate-x-[-50%]"
                   style={{
                     fontFamily: "var(--font-red-hat-display), 'Red Hat Display', sans-serif",
                     fontWeight: 500,

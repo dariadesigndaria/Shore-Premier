@@ -279,11 +279,9 @@ function DeclarationsForm() {
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
 
-        {/* Step hint */}
-        <StepHint text="You're at the final stage of your insurance application." />
-
         {/* Title */}
-        <div className="flex flex-col gap-1 w-full">
+        <div className="flex flex-col gap-2 w-full">
+          <StepHint text="You're at the final stage of your insurance application." />
           <h1 style={mainTitleStyle}>Declarations</h1>
         </div>
 
