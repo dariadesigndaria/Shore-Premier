@@ -254,19 +254,7 @@ function AboutYouForm() {
         {/* ── US Citizen = Yes branch ── */}
         {form.isUSCitizen === "yes" && (
           <>
-            {/* Country of origin (home country or country of citizenship) */}
-            <div className="flex flex-col gap-5 w-full">
-              <h2 style={sectionHeadingStyle}>What is your country of origin (home country or country of citizenship)?</h2>
-              <ComboSelect
-                label="Country of Origin"
-                required
-                options={COUNTRIES}
-                value={form.countryOfOrigin}
-                onChange={update("countryOfOrigin")}
-              />
-            </div>
-
-            {/* Dual citizenship question */}
+            {/* Dual citizenship question (shown first) */}
             <div className="flex flex-col gap-6 w-full">
               <h2 style={sectionHeadingStyle}>Do you have citizenship with another country?</h2>
               <SingleSelector
@@ -276,7 +264,7 @@ function AboutYouForm() {
               />
             </div>
 
-            {/* Which country (dual citizenship) */}
+            {/* If Yes → which country */}
             {form.hasDualCitizenship === "yes" && (
               <div className="flex flex-col gap-5 w-full">
                 <h2 style={sectionHeadingStyle}>Which country?</h2>
@@ -288,6 +276,43 @@ function AboutYouForm() {
                   onChange={update("dualCitizenshipCountry")}
                 />
               </div>
+            )}
+
+            {/* If No → country of origin + green card */}
+            {form.hasDualCitizenship === "no" && (
+              <>
+                <div className="flex flex-col gap-5 w-full">
+                  <h2 style={sectionHeadingStyle}>What is your country of origin?</h2>
+                  <ComboSelect
+                    label="Country of Origin"
+                    required
+                    options={COUNTRIES}
+                    value={form.countryOfOrigin}
+                    onChange={update("countryOfOrigin")}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-6 w-full">
+                  <h2 style={sectionHeadingStyle}>Do you have a Green Card or are you a foreign resident of the U.S. (legal permanent Resident?</h2>
+                  <SingleSelector
+                    options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
+                    value={form.hasGreenCard}
+                    onChange={update("hasGreenCard")}
+                  />
+                </div>
+
+                {form.hasGreenCard === "yes" && (
+                  <div className="flex flex-col gap-5 w-full">
+                    <h2 style={sectionHeadingStyle}>Green Card ID Number</h2>
+                    <Input
+                      label="Green Card / Permanent Resident Number"
+                      required
+                      value={form.greenCardNumber}
+                      onChange={handleInput("greenCardNumber")}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
