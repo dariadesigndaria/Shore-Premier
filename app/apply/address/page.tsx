@@ -227,7 +227,7 @@ function AddressForm() {
   };
 
   return (
-    <div className="relative flex flex-col gap-12 items-start overflow-x-hidden pb-14 pt-16 px-[276px] w-full">
+    <div className="relative flex flex-col gap-12 items-start pb-14 pt-16 px-[276px] w-full min-h-screen">
 
       {/* Save & Exit button (top-right) */}
       <button
