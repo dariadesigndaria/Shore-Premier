@@ -45,6 +45,40 @@ const SELF_EMPLOYED_SECONDARY_SLOTS: SlotDef[] = [
   { key: "pnl", label: "Signed and Dated Year to Date Profit & Loss", sublabel: "Optional" },
 ];
 
+// Self-employed US resident — single income source
+const SELF_EMPLOYED_US_SINGLE_SLOTS: SlotDef[] = [
+  { key: "ptr_2024", label: "2024 Personal Tax Return (All Schedules)" },
+  { key: "ptr_2025", label: "2025 Personal Tax Return (All Schedules)" },
+  { key: "w2_2024", label: "2024 W2", sublabel: "Optional" },
+  { key: "w2_2025", label: "2025 W2", sublabel: "Optional" },
+  { key: "paystubs", label: "Last 2 most recent paystubs", sublabel: "Optional" },
+  { key: "btr_2023", label: "2023 Business Tax Returns (All Schedules)", sublabel: "Optional" },
+  { key: "pnl", label: "Signed and Dated Year to Date Profit & Loss", sublabel: "Optional" },
+  { key: "btr_2024", label: "2024 Business Tax Returns (All Schedules)", sublabel: "Optional" },
+];
+
+// Self-employed US resident — first income source when multiple sources
+const SELF_EMPLOYED_US_MULTI_PRIMARY_SLOTS: SlotDef[] = [
+  { key: "ptr_2024", label: "2024 Personal Tax Return (All Schedules)" },
+  { key: "ptr_2025", label: "2025 Personal Tax Return (All Schedules)" },
+  { key: "w2_2024", label: "2024 W2", sublabel: "Optional" },
+  { key: "w2_2025", label: "2025 W2", sublabel: "Optional" },
+  { key: "paystubs", label: "Last 2 most recent paystubs", sublabel: "Optional" },
+  { key: "pnl", label: "Signed and Dated Year to Date Profit & Loss", sublabel: "Optional" },
+  { key: "btr_2024", label: "2024 Business Tax Returns (All Schedules)", sublabel: "Optional" },
+  { key: "btr_2025", label: "2025 Business Tax Returns (All Schedules)", sublabel: "Optional" },
+];
+
+// Self-employed US resident — second and subsequent income sources
+const SELF_EMPLOYED_US_MULTI_SECONDARY_SLOTS: SlotDef[] = [
+  { key: "w2_2024", label: "2024 W2", sublabel: "Optional" },
+  { key: "w2_2025", label: "2025 W2", sublabel: "Optional" },
+  { key: "paystubs", label: "Last 2 most recent paystubs", sublabel: "Optional" },
+  { key: "pnl", label: "Signed and Dated Year to Date Profit & Loss", sublabel: "Optional" },
+  { key: "btr_2024", label: "2024 Business Tax Returns (All Schedules)", sublabel: "Optional" },
+  { key: "btr_2025", label: "2025 Business Tax Returns (All Schedules)", sublabel: "Optional" },
+];
+
 const RETIRED_SLOTS: SlotDef[] = [
   { key: "award_letter", label: "Most recent retirement award letter", sublabel: "e.g., Social Security, pension, or annuity" },
   { key: "ptr_2025", label: "2025 Personal Tax Returns (All Schedules)", sublabel: "Optional" },
@@ -253,14 +287,18 @@ function DocumentsForm() {
 
   const [empType, setEmpType] = useState("w2");
   const [isUSResident, setIsUSResident] = useState(true);
+  const [isSelfEmployedUSResident, setIsSelfEmployedUSResident] = useState(false);
   const [sourceCount, setSourceCount] = useState(1);
 
   useEffect(() => {
     const emp = readLS<{ employmentType?: string }>("easyfund_employment");
-    setEmpType(emp?.employmentType || "w2");
-
     const about = readLS<{ country?: string }>("easyfund_about_you");
-    setIsUSResident(about?.country === "us");
+
+    const empTypeVal = emp?.employmentType || "w2";
+    const usResident = about?.country === "us";
+    setEmpType(empTypeVal);
+    setIsUSResident(usResident);
+    setIsSelfEmployedUSResident(empTypeVal === "self_employed" && usResident);
 
     const income = readLS<{ hasAdditionalIncome?: string; extras?: unknown[] }>("easyfund_income");
     const extras = income?.extras?.length ?? 0;
@@ -462,8 +500,47 @@ function DocumentsForm() {
               />
             )}
 
-            {/* US + Single source */}
-            {isUSResident && !hasMultiple && (
+            {/* Self-employed US resident — single source */}
+            {isSelfEmployedUSResident && !hasMultiple && (
+              <SlotGrid
+                slots={SELF_EMPLOYED_US_SINGLE_SLOTS}
+                prefix="poi_se_us_"
+                cols="grid-cols-2"
+                files={files}
+                onChange={handleFile}
+              />
+            )}
+
+            {/* Self-employed US resident — multiple sources */}
+            {isSelfEmployedUSResident && hasMultiple && (
+              <div className="flex flex-col gap-8">
+                {Array.from({ length: sourceCount }, (_, idx) => {
+                  const sourceLabel =
+                    idx === 0 ? "First Income Source" :
+                    idx === 1 ? "Second Income Source" :
+                    idx === 2 ? "Third Income Source" :
+                    `Income Source ${idx + 1}`;
+                  const slots = idx === 0
+                    ? SELF_EMPLOYED_US_MULTI_PRIMARY_SLOTS
+                    : SELF_EMPLOYED_US_MULTI_SECONDARY_SLOTS;
+                  return (
+                    <div key={idx} className="flex flex-col gap-4">
+                      <SourceLabel label={sourceLabel} />
+                      <SlotGrid
+                        slots={slots}
+                        prefix={`poi_se_us_s${idx}_`}
+                        cols="grid-cols-2"
+                        files={files}
+                        onChange={handleFile}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* US + non-self-employed + single source */}
+            {isUSResident && !isSelfEmployedUSResident && !hasMultiple && (
               <div className="flex flex-col gap-4">
                 <SlotGrid
                   slots={getSlotsForType(empType)}
@@ -472,21 +549,11 @@ function DocumentsForm() {
                   files={files}
                   onChange={handleFile}
                 />
-                {/* Extra W2/paystub slots for self-employed US residents */}
-                {empType === "self_employed" && (
-                  <SlotGrid
-                    slots={SELF_EMPLOYED_US_EXTRA_SLOTS}
-                    prefix="poi_s0_extra_"
-                    cols="grid-cols-2"
-                    files={files}
-                    onChange={handleFile}
-                  />
-                )}
               </div>
             )}
 
-            {/* US + Multiple sources */}
-            {isUSResident && hasMultiple && (
+            {/* US + non-self-employed + multiple sources */}
+            {isUSResident && !isSelfEmployedUSResident && hasMultiple && (
               <div className="flex flex-col gap-8">
                 {Array.from({ length: sourceCount }, (_, idx) => {
                   const sourceLabel =
@@ -508,16 +575,6 @@ function DocumentsForm() {
                         files={files}
                         onChange={handleFile}
                       />
-                      {/* Extra W2/paystub slots for self-employed US residents per source */}
-                      {empType === "self_employed" && idx === 0 && (
-                        <SlotGrid
-                          slots={SELF_EMPLOYED_US_EXTRA_SLOTS}
-                          prefix={`poi_s${idx}_extra_`}
-                          cols="grid-cols-2"
-                          files={files}
-                          onChange={handleFile}
-                        />
-                      )}
                     </div>
                   );
                 })}
