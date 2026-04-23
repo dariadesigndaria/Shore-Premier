@@ -6,6 +6,7 @@ import Input from "@/components/form/Input";
 import Select from "@/components/form/Select";
 import SingleSelector from "@/components/form/SingleSelector";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
+import StepHint from "@/components/form/StepHint";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -155,6 +156,9 @@ function OwnershipForm() {
       </button>
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
+
+        {/* Step hint */}
+        <StepHint text="You're almost there — just a bit more about your boating experience" />
 
         {/* Title */}
         <div className="flex flex-col gap-1 w-full">

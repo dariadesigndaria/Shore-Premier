@@ -11,6 +11,7 @@ import MonthYearPicker from "@/components/form/MonthYearPicker";
 import DatePicker from "@/components/form/DatePicker";
 import ExpandableQuestion from "@/components/form/ExpandableQuestion";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
+import StepHint from "@/components/form/StepHint";
 
 // ─── Static options (shared with other steps) ────────────────────────────────
 
@@ -535,6 +536,9 @@ function CoBorrowerForm() {
       </button>
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
+
+        {/* Step hint */}
+        <StepHint text="You're halfway there — great progress" />
 
         {/* ── Personal Details ── */}
         <div className="flex flex-col gap-5 w-full">

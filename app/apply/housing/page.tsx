@@ -6,6 +6,7 @@ import SingleSelector from "@/components/form/SingleSelector";
 import Checkbox from "@/components/form/Checkbox";
 import CurrencyInput from "@/components/form/CurrencyInput";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
+import StepHint from "@/components/form/StepHint";
 
 const HOUSING_TYPES = [
   { value: "renting", label: "Renting" },
@@ -115,6 +116,9 @@ function HousingForm() {
       </button>
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
+
+        {/* Step hint */}
+        <StepHint text="Clear answers here help avoid follow-up questions later." />
 
         {/* ── Housing type ── */}
         <div className="flex flex-col gap-5 w-full">

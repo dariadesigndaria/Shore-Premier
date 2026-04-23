@@ -8,6 +8,7 @@ import DatePicker from "@/components/form/DatePicker";
 import CurrencyInput from "@/components/form/CurrencyInput";
 import SingleSelector from "@/components/form/SingleSelector";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
+import StepHint from "@/components/form/StepHint";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -446,6 +447,9 @@ function BoatForm() {
       </button>
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
+
+        {/* Step hint */}
+        <StepHint text="Now we'll use your profile to match you with the right financing for your vessel" />
 
         {/* ── Title ── */}
         <div className="flex flex-col gap-1 w-full">

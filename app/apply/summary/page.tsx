@@ -37,9 +37,11 @@ interface AboutYouStored {
   hasSSN: string;
   ssn: string;
   isUSCitizen: string;
+  countryOfOrigin: string;
   hasDualCitizenship: string;
   dualCitizenshipCountry: string;
-  countryOfOrigin: string;
+  hasGreenCard: string;
+  greenCardNumber: string;
 }
 
 // Address
@@ -759,6 +761,13 @@ function SummaryForm() {
                     value={aboutYou.isUSCitizen === "yes" ? "Yes" : "No"}
                   />
                 )}
+                {/* Yes branch: country of origin + dual citizenship */}
+                {aboutYou.isUSCitizen === "yes" && aboutYou.countryOfOrigin && (
+                  <SummaryRow
+                    label="Country of origin (home country or country of citizenship)"
+                    value={COUNTRY_LABELS[aboutYou.countryOfOrigin] ?? aboutYou.countryOfOrigin}
+                  />
+                )}
                 {aboutYou.isUSCitizen === "yes" && aboutYou.hasDualCitizenship && (
                   <SummaryRow
                     label="Do you have citizenship with another country?"
@@ -771,10 +780,23 @@ function SummaryForm() {
                     value={COUNTRY_LABELS[aboutYou.dualCitizenshipCountry] ?? aboutYou.dualCitizenshipCountry}
                   />
                 )}
+                {/* No branch: country of origin + green card */}
                 {aboutYou.isUSCitizen === "no" && aboutYou.countryOfOrigin && (
                   <SummaryRow
                     label="Country of origin"
                     value={COUNTRY_LABELS[aboutYou.countryOfOrigin] ?? aboutYou.countryOfOrigin}
+                  />
+                )}
+                {aboutYou.isUSCitizen === "no" && aboutYou.hasGreenCard && (
+                  <SummaryRow
+                    label="Green Card / Permanent Resident?"
+                    value={aboutYou.hasGreenCard === "yes" ? "Yes" : "No"}
+                  />
+                )}
+                {aboutYou.isUSCitizen === "no" && aboutYou.hasGreenCard === "yes" && aboutYou.greenCardNumber && (
+                  <SummaryRow
+                    label="Green Card ID Number"
+                    value={aboutYou.greenCardNumber}
                   />
                 )}
               </div>

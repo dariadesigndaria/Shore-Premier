@@ -7,6 +7,7 @@ import CurrencyInput from "@/components/form/CurrencyInput";
 import MonthYearPicker from "@/components/form/MonthYearPicker";
 import ExpandableQuestion from "@/components/form/ExpandableQuestion";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
+import StepHint from "@/components/form/StepHint";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -405,6 +406,9 @@ function EmploymentForm() {
       </button>
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
+
+        {/* Step hint */}
+        <StepHint text="This helps us match you with better rates and loan options" />
 
         {/* ── Employment Type ── */}
         <div className="flex flex-col gap-5 w-full">

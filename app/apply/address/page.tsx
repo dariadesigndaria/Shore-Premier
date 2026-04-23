@@ -9,6 +9,7 @@ import Checkbox from "@/components/form/Checkbox";
 import ExpandableQuestion from "@/components/form/ExpandableQuestion";
 import MonthYearPicker from "@/components/form/MonthYearPicker";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
+import StepHint from "@/components/form/StepHint";
 
 const COUNTRIES = [
   { value: "us", label: "United States" },
@@ -245,6 +246,9 @@ function AddressForm() {
 
       {/* Form block */}
       <div className="flex flex-col gap-8 items-start w-[564px]">
+
+        {/* Step hint */}
+        <StepHint text="This helps us verify your details and move your application forward" />
 
         {/* ── Section: Current Address ── */}
         <div className="flex flex-col gap-5 w-full">

@@ -8,6 +8,7 @@ import CurrencyInput from "@/components/form/CurrencyInput";
 import MonthYearPicker from "@/components/form/MonthYearPicker";
 import ExpandableQuestion from "@/components/form/ExpandableQuestion";
 import { ArrowRightIcon, QuestionMarkIcon } from "@/components/icons";
+import StepHint from "@/components/form/StepHint";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -620,6 +621,9 @@ function IncomeForm() {
       </button>
 
       <div className="flex flex-col gap-8 items-start w-[564px]">
+
+        {/* Step hint */}
+        <StepHint text="Adding more income sources can help you qualify for better offers" />
 
         {/* ── Title ── */}
         <div className="flex flex-col gap-1 w-full">
