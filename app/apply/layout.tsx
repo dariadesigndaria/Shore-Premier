@@ -29,7 +29,7 @@ function ApplyLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex bg-white">
+    <div className="flex bg-white min-h-screen">
       <Sidebar
         currentStep={currentStep}
         completedSteps={completedSteps}

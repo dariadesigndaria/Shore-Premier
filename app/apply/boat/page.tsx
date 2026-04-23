@@ -33,6 +33,7 @@ interface BoatState {
   horsepowerPerEngine: string;
   numberOfEngines: number;
   mooringLocation: string;
+  mooringLocationOther: string;
   // LLC
   llcTitled: string; // "yes" | "no" | ""
   // Vessel use
@@ -60,6 +61,7 @@ function loadFromStorage(): BoatState {
     horsepowerPerEngine: "",
     numberOfEngines: 1,
     mooringLocation: "",
+    mooringLocationOther: "",
     llcTitled: "",
     vesselUse: "",
   };
@@ -407,6 +409,7 @@ function BoatForm() {
 
     // Mooring location required
     if (!state.mooringLocation) return false;
+    if (state.mooringLocation === "other" && !state.mooringLocationOther.trim()) return false;
 
     // LLC
     if (!state.llcTitled) return false;
@@ -605,6 +608,14 @@ function BoatForm() {
               />
             </div>
           </div>
+          {state.mooringLocation === "other" && (
+            <Input
+              label="Please specify mooring location"
+              required
+              value={state.mooringLocationOther}
+              onChange={(e) => update("mooringLocationOther", e.target.value)}
+            />
+          )}
         </div>
 
         {/* ── Vessel Use ── */}

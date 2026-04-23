@@ -172,11 +172,14 @@ interface BoatStored {
 // Ownership
 interface OwnershipStored {
   hasPriorOwnership: string;
-  boatMake: string;
-  boatModel: string;
-  boatYear: string;
-  yearsOwned: string;
-  wasFinanced: string;
+  vessels: {
+    id: string;
+    yearsOwned: string;
+    vesselType: string;
+    year: string;
+    make: string;
+    model: string;
+  }[];
 }
 
 // Declarations
@@ -1114,72 +1117,6 @@ function SummaryForm() {
             </div>
           )}
 
-          {/* ── Boat Information ── */}
-          {boat?.loanType && (
-            <div className="flex flex-col gap-5 w-full">
-              <SectionHeader title="Boat Information" stepId="boat" onEdit={handleEditStep} />
-              <div className="flex flex-col gap-4">
-                <SummaryRow
-                  label="Are you purchasing or refinancing?"
-                  value={LOAN_TYPE_LABELS[boat.loanType] ?? boat.loanType}
-                />
-                {boat.loanType === "purchasing" && (
-                  <>
-                    <SummaryRow
-                      label="Vessel Purchase Price"
-                      value={fmtCurrency(boat.purchasePrice, boat.purchaseCurrency)}
-                    />
-                    <SummaryRow
-                      label="Down Payment"
-                      value={fmtCurrency(boat.downPayment, boat.downPaymentCurrency)}
-                    />
-                  </>
-                )}
-                {boat.loanType === "refinancing" && (
-                  <>
-                    <SummaryRow
-                      label="Loan Amount"
-                      value={fmtCurrency(boat.loanAmount, boat.loanAmountCurrency)}
-                    />
-                    {boat.currentLender && (
-                      <SummaryRow label="Current Lender" value={boat.currentLender} />
-                    )}
-                    {boat.vesselPurchaseDate && (
-                      <SummaryRow label="Date of the Vessel purchase" value={fmtDate(boat.vesselPurchaseDate)} />
-                    )}
-                  </>
-                )}
-                <SummaryRow label="Make" value={boat.make} />
-                <SummaryRow label="Model" value={boat.model} />
-                <SummaryRow label="Year" value={boat.year} />
-                <SummaryRow label="Engine Make" value={boat.engineMake} />
-                <SummaryRow label="Engine Type" value={boat.engineType} />
-                <SummaryRow label="Horsepower per Engine" value={boat.horsepowerPerEngine} />
-                <SummaryRow label="Number of Engines" value={String(boat.numberOfEngines)} />
-                {boat.mooringLocation && (
-                  <SummaryRow
-                    label="Mooring location"
-                    value={MOORING_LOCATION_LABELS[boat.mooringLocation] ?? boat.mooringLocation}
-                  />
-                )}
-                {boat.vesselUse && (
-                  <SummaryRow
-                    label="Vessel use"
-                    value={VESSEL_USE_LABELS[boat.vesselUse] ?? boat.vesselUse}
-                  />
-                )}
-                <SummaryRow
-                  label={
-                    boat.loanType === "purchasing"
-                      ? "Will the vessel be titled in a single purpose LLC?"
-                      : "Is the vessel titled in a LLC?"
-                  }
-                  value={boat.llcTitled === "yes" ? "Yes" : boat.llcTitled === "no" ? "No" : ""}
-                />
-              </div>
-            </div>
-          )}
-
           {/* ── Ownership ── */}
           {ownership?.hasPriorOwnership && (
             <div className="flex flex-col gap-5 w-full">
@@ -1189,20 +1126,18 @@ function SummaryForm() {
                   label="Do you have prior boat ownership experience?"
                   value={ownership.hasPriorOwnership === "yes" ? "Yes" : "No"}
                 />
-                {ownership.hasPriorOwnership === "yes" && (
-                  <>
-                    {ownership.boatMake && <SummaryRow label="Boat Make" value={ownership.boatMake} />}
-                    {ownership.boatModel && <SummaryRow label="Boat Model" value={ownership.boatModel} />}
-                    {ownership.boatYear && <SummaryRow label="Year" value={ownership.boatYear} />}
-                    {ownership.yearsOwned && <SummaryRow label="How long did you own this vessel?" value={ownership.yearsOwned} />}
-                    {ownership.wasFinanced && (
-                      <SummaryRow
-                        label="Was this vessel financed?"
-                        value={ownership.wasFinanced === "yes" ? "Yes" : "No"}
-                      />
-                    )}
-                  </>
-                )}
+                {ownership.hasPriorOwnership === "yes" && Array.isArray(ownership.vessels) && ownership.vessels.map((v, i) => (
+                  <div key={v.id ?? i} className="flex flex-col gap-2">
+                    <p style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontWeight: 500, fontSize: "14px", color: "#727279" }}>
+                      {i === 0 ? "1st" : i === 1 ? "2nd" : i === 2 ? "3rd" : `${i + 1}th`} vessel
+                    </p>
+                    {v.vesselType && <SummaryRow label="Vessel Type" value={v.vesselType} />}
+                    {v.year && <SummaryRow label="Year" value={v.year} />}
+                    {v.make && <SummaryRow label="Make" value={v.make} />}
+                    {v.model && <SummaryRow label="Model" value={v.model} />}
+                    {v.yearsOwned && <SummaryRow label="Years of ownership" value={v.yearsOwned} />}
+                  </div>
+                ))}
               </div>
             </div>
           )}

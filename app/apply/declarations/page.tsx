@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Select from "@/components/form/Select";
 import ComboSelect from "@/components/form/ComboSelect";
@@ -127,6 +127,18 @@ function MultiCountrySelect({
   onChange: (v: string[]) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
 
   function toggle(country: string) {
     if (value.includes(country)) {
@@ -136,32 +148,84 @@ function MultiCountrySelect({
     }
   }
 
-  const selectedLabels = value
-    .map((v) => COUNTRIES.find((c) => c.value === v)?.label ?? v)
-    .join(", ");
+  function removeTag(country: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    onChange(value.filter((c) => c !== country));
+  }
 
   return (
-    <div className="relative w-full">
-      <button
-        type="button"
+    <div ref={ref} className="relative w-full">
+      {/* Trigger */}
+      <div
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between rounded-[2px] border border-[#dcdcde] bg-white px-3 transition-colors hover:border-[#a6a6ab]"
-        style={{ height: 48 }}
+        className="w-full min-h-[48px] flex flex-wrap items-center gap-2 rounded-[2px] border bg-white px-3 py-2 cursor-pointer transition-colors"
+        style={{
+          borderColor: open ? "#4b0ea3" : "#dcdcde",
+          boxShadow: open ? "0 0 0 2px rgba(75,14,163,0.08)" : "none",
+          paddingRight: 40,
+          position: "relative",
+        }}
       >
+        {/* Floating label */}
         <span
           style={{
+            position: "absolute",
+            top: value.length > 0 ? -9 : "50%",
+            left: 10,
+            transform: value.length > 0 ? "none" : "translateY(-50%)",
+            fontSize: value.length > 0 ? "11px" : "14px",
+            color: "#a6a6ab",
+            background: "white",
+            padding: value.length > 0 ? "0 3px" : "0",
+            pointerEvents: "none",
+            transition: "all 0.15s",
             fontFamily: "var(--font-figtree), Figtree, sans-serif",
-            fontSize: "14px",
-            color: value.length > 0 ? "#2f2f39" : "#a6a6ab",
           }}
         >
-          {value.length > 0 ? selectedLabels : "Select countries"}
+          Countries*
         </span>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 7.5L10 12.5L15 7.5" stroke="#727279" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
 
+        {/* Tags */}
+        {value.map((v) => {
+          const label = COUNTRIES.find((c) => c.value === v)?.label ?? v;
+          return (
+            <div
+              key={v}
+              className="flex items-center gap-1 rounded-[4px] px-2 py-[3px]"
+              style={{ background: "#f0f0f2" }}
+            >
+              <span style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontSize: "13px", color: "#2f2f39" }}>
+                {label}
+              </span>
+              <button
+                type="button"
+                onClick={(e) => removeTag(v, e)}
+                className="flex items-center justify-center cursor-pointer bg-transparent border-none p-0 hover:opacity-60"
+                aria-label={`Remove ${label}`}
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 2L10 10M10 2L2 10" stroke="#727279" strokeWidth="1.3" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          );
+        })}
+
+        {value.length === 0 && (
+          <span style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontSize: "14px", color: "transparent" }}>
+            &nbsp;
+          </span>
+        )}
+
+        {/* Chevron */}
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M5 7.5L10 12.5L15 7.5" stroke="#727279" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Dropdown list */}
       {open && (
         <div
           className="absolute z-50 w-full bg-white border border-[#dcdcde] rounded-[4px] mt-1 max-h-60 overflow-y-auto"
@@ -189,14 +253,8 @@ function MultiCountrySelect({
                     </svg>
                   )}
                 </div>
-                <span
-                  style={{
-                    fontFamily: "var(--font-figtree), Figtree, sans-serif",
-                    fontSize: "14px",
-                    color: "#2f2f39",
-                  }}
-                  onClick={() => toggle(country.value)}
-                >
+                <input type="checkbox" checked={selected} onChange={() => toggle(country.value)} className="sr-only" />
+                <span style={{ fontFamily: "var(--font-figtree), Figtree, sans-serif", fontSize: "14px", color: "#2f2f39" }}>
                   {country.label}
                 </span>
               </label>

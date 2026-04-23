@@ -44,7 +44,7 @@ export default function TypeOfApplicationPage() {
               {/* Individually */}
               <Link
                 href="/apply/about-you?type=individual"
-                className="flex-1 h-[200px] rounded-[4px] flex flex-col items-center justify-center gap-8 border-2 border-[rgba(34,34,45,0.06)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(75,14,163,0.3)] hover:bg-[rgba(75,14,163,0.03)] transition-colors"
+                className="flex-1 h-[200px] rounded-[4px] flex flex-col items-start gap-8 pl-6 pt-8 pb-6 border-2 border-[rgba(34,34,45,0.06)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(75,14,163,0.3)] hover:bg-[rgba(75,14,163,0.03)] transition-colors"
               >
                 <PersonIcon size={48} fill="#9ca3af" />
                 <p
@@ -64,7 +64,7 @@ export default function TypeOfApplicationPage() {
               {/* With a Co-Borrower */}
               <Link
                 href="/apply/about-you?type=co-borrower"
-                className="flex-1 h-[200px] rounded-[4px] flex flex-col items-center justify-center gap-8 border-2 border-[rgba(34,34,45,0.06)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(75,14,163,0.3)] hover:bg-[rgba(75,14,163,0.03)] transition-colors"
+                className="flex-1 h-[200px] rounded-[4px] flex flex-col items-start gap-8 pl-6 pt-8 pb-6 border-2 border-[rgba(34,34,45,0.06)] bg-[rgba(112,128,144,0.04)] hover:border-[rgba(75,14,163,0.3)] hover:bg-[rgba(75,14,163,0.03)] transition-colors"
               >
                 <UsersIcon size={48} fill="#9ca3af" />
                 <p

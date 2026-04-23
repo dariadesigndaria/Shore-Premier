@@ -8,6 +8,7 @@ function VerifyTransitionInner() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type") ?? "individual";
   const done = searchParams.get("done") ?? "";
+  const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
   function handleVerify() {
     router.push(`/verify/id?type=${type}&done=${done}`);
@@ -23,14 +24,11 @@ function VerifyTransitionInner() {
         className="w-full shrink-0 flex items-center justify-center"
         style={{ height: 72, background: "#ffffff", borderBottom: "1px solid rgba(112,128,144,0.08)" }}
       >
-        <p
-          style={{
-            fontFamily: "var(--font-red-hat-display), 'Red Hat Display', sans-serif",
-            fontWeight: 700, fontSize: "24px", letterSpacing: "-0.8px", color: "#2f2f39",
-          }}
-        >
-          EasyFund
-        </p>
+        <img
+          src={`${BASE}/images/main-logo.png`}
+          alt="Shore Premier Finance"
+          style={{ height: 44, width: "auto", objectFit: "contain" }}
+        />
       </header>
 
       {/* Main */}
