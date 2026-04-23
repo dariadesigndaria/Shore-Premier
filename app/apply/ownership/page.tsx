@@ -214,7 +214,7 @@ function OwnershipForm() {
                 <div
                   key={vessel.id}
                   className="flex flex-col gap-4 w-full rounded-[8px] bg-white p-5"
-                  style={{ border: "1px solid #dcdcde", boxShadow: "0px 4px 16px 0px rgba(34, 34, 45, 0.08)" }}
+                  style={{ boxShadow: "0px 4px 16px 0px rgba(34, 34, 45, 0.08)" }}
                 >
                   {/* Card header */}
                   <div className="flex items-center justify-between w-full">

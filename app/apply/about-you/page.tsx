@@ -278,41 +278,18 @@ function AboutYouForm() {
               </div>
             )}
 
-            {/* If No → country of origin + green card */}
+            {/* If No → country of origin only (US citizens don't have Green Cards) */}
             {form.hasDualCitizenship === "no" && (
-              <>
-                <div className="flex flex-col gap-5 w-full">
-                  <h2 style={sectionHeadingStyle}>What is your country of origin?</h2>
-                  <ComboSelect
-                    label="Country of Origin"
-                    required
-                    options={COUNTRIES}
-                    value={form.countryOfOrigin}
-                    onChange={update("countryOfOrigin")}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-6 w-full">
-                  <h2 style={sectionHeadingStyle}>Do you have a Green Card or are you a foreign resident of the U.S. (legal permanent Resident?</h2>
-                  <SingleSelector
-                    options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]}
-                    value={form.hasGreenCard}
-                    onChange={update("hasGreenCard")}
-                  />
-                </div>
-
-                {form.hasGreenCard === "yes" && (
-                  <div className="flex flex-col gap-5 w-full">
-                    <h2 style={sectionHeadingStyle}>Green Card ID Number</h2>
-                    <Input
-                      label="Green Card / Permanent Resident Number"
-                      required
-                      value={form.greenCardNumber}
-                      onChange={handleInput("greenCardNumber")}
-                    />
-                  </div>
-                )}
-              </>
+              <div className="flex flex-col gap-5 w-full">
+                <h2 style={sectionHeadingStyle}>What is your country of origin?</h2>
+                <ComboSelect
+                  label="Country of Origin"
+                  required
+                  options={COUNTRIES}
+                  value={form.countryOfOrigin}
+                  onChange={update("countryOfOrigin")}
+                />
+              </div>
             )}
           </>
         )}

@@ -292,10 +292,10 @@ function DocumentsForm() {
 
   useEffect(() => {
     const emp = readLS<{ employmentType?: string }>("easyfund_employment");
-    const about = readLS<{ country?: string }>("easyfund_about_you");
+    const about = readLS<{ country?: string; isUSCitizen?: string }>("easyfund_about_you");
 
     const empTypeVal = emp?.employmentType || "w2";
-    const usResident = about?.country === "us";
+    const usResident = about?.country === "us" || about?.isUSCitizen === "yes";
     setEmpType(empTypeVal);
     setIsUSResident(usResident);
     setIsSelfEmployedUSResident(empTypeVal === "self_employed" && usResident);
